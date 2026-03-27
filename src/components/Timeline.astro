@@ -1,0 +1,91 @@
+---
+const milestones = [
+  { year: "2020", title: "Started Freelancing", description: "Began web design journey, focusing on Wix and brand identity." },
+  { year: "2022", title: "Wix Certified", description: "Earned Wix Certified Web Designer credential." },
+  { year: "2024", title: "Da Vinci Studio", description: "Launched my studio, expanding to luxury and kitchen clients." },
+  { year: "2025", title: "Accessibility Specialist", description: "Obtained Wix Accessibility Specialist certification." }
+];
+---
+<div class="timeline">
+  {milestones.map((m, i) => (
+    <div class="timeline-item" data-index={i}>
+      <div class="timeline-year">{m.year}</div>
+      <div class="timeline-content">
+        <h3>{m.title}</h3>
+        <p>{m.description}</p>
+      </div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .timeline {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background: var(--accent);
+    transform: translateX(-50%);
+  }
+  .timeline-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .timeline-item.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .timeline-year {
+    width: 120px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: var(--accent);
+    text-align: right;
+  }
+  .timeline-content {
+    width: calc(50% - 30px);
+    background: var(--bg2);
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+  }
+  .timeline-content h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+  .timeline-content p {
+    font-family: 'Outfit', sans-serif;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  @media (max-width: 768px) {
+    .timeline::before { left: 20px; }
+    .timeline-item { flex-direction: column; margin-left: 40px; }
+    .timeline-year { text-align: left; width: auto; margin-bottom: 0.5rem; }
+    .timeline-content { width: 100%; }
+  }
+</style>
+
+<script>
+  const items = document.querySelectorAll('.timeline-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  items.forEach(item => observer.observe(item));
+</script>

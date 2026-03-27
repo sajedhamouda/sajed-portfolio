@@ -1,0 +1,155 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ThreeBackground from '../components/ThreeBackground.astro';
+import ScrollHint from '../components/ScrollHint.astro';
+import Counters from '../components/Counters.astro';
+import NumberedCards from '../components/NumberedCards.astro';
+import PortfolioGrid from '../components/PortfolioGrid.astro';
+import Timeline from '../components/Timeline.astro';
+---
+
+<Layout>
+  <!-- Hero Section with 3D Background -->
+  <section id="hero" class="hero fade-up" style="position: relative; overflow: hidden; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center;">
+    <ThreeBackground client:load />
+    <div class="hero-content" style="position: relative; z-index: 2; max-width: 800px; margin: 0 auto; padding: 2rem;">
+      <h1 class="hero-title">Take control of your digital presence</h1>
+      <p class="hero-subtitle">No more wasted budgets. Get your work in front of the right people.</p>
+      <a href="#contact" class="btn">Let's talk</a>
+    </div>
+    <ScrollHint />
+  </section>
+
+  <!-- Counters Section -->
+  <section id="stats" class="stats-section fade-up" style="padding: 4rem 1.5rem; background: var(--bg2);">
+    <div class="container">
+      <Counters />
+    </div>
+  </section>
+
+  <!-- Services Section (Numbered Cards) -->
+  <section id="services" class="services-section fade-up" style="padding: 4rem 1.5rem;">
+    <div class="container">
+      <NumberedCards
+        title="MY EXPERTISE."
+        items={[
+          { number: 1, title: "Wix Development", description: "Certified Wix Studio expert building high-performance, responsive websites." },
+          { number: 2, title: "UI/UX Design", description: "User-centered design that drives engagement and conversions." },
+          { number: 3, title: "Brand Identity", description: "Visual identity systems that reflect your brand's essence." },
+          { number: 4, title: "Web Development", description: "Custom code and integration for unique digital experiences." }
+        ]}
+      />
+    </div>
+  </section>
+
+  <!-- Portfolio Section -->
+  <section id="work" class="work-section fade-up" style="padding: 4rem 1.5rem; background: var(--bg2);">
+    <div class="container">
+      <h2 class="section-title">Selected Work</h2>
+      <PortfolioGrid />
+    </div>
+  </section>
+
+  <!-- Timeline Section (Optional) -->
+  <section id="timeline" class="timeline-section fade-up" style="padding: 4rem 1.5rem;">
+    <div class="container">
+      <h2 class="section-title">My Journey</h2>
+      <Timeline />
+    </div>
+  </section>
+
+  <!-- Contact Section (Simple placeholder) -->
+  <section id="contact" class="contact-section fade-up" style="padding: 4rem 1.5rem; background: var(--bg2);">
+    <div class="container" style="text-align: center;">
+      <h2 class="section-title">Let's Create Something Unforgettable</h2>
+      <p style="margin-bottom: 2rem;">Have a project in mind? Reach out and let's bring your vision to life.</p>
+      <a href="mailto:sajedhamouda@gmail.com" class="btn">Contact me</a>
+    </div>
+  </section>
+
+  <style>
+    /* Global styles specific to this page (can also go in Layout) */
+    .hero {
+      background: var(--bg);
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5rem);
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      color: var(--foreground);
+    }
+    .hero-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+    .btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.8rem 2rem;
+      text-decoration: none;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      border-radius: 2rem;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background: #b52222;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 3rem;
+      text-align: center;
+      color: var(--foreground);
+    }
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (max-width: 768px) {
+      .section-title {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+
+  <script>
+    // Intersection Observer for fade-up sections
+    const fadeElements = document.querySelectorAll('.fade-up');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    fadeElements.forEach(el => observer.observe(el));
+
+    // Smooth scroll for nav links (if you have them)
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href').substring(1);
+        const target = document.getElementById(targetId);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</Layout>

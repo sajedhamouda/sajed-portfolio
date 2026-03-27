@@ -18,7 +18,8 @@ import Layout from '../layouts/Layout.astro';
       <a href="mailto:sajedhamouda@gmail.com" class="nav-contact">Contact me</a>
     </div>
   </nav>
-<!-- HERO -->
+
+  <!-- HERO -->
   <section id="hero">
     <div class="hero-tag">Wix Certified Designer &amp; UI/UX Specialist</div>
     <div class="hero-name">
@@ -38,9 +39,32 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </div>
   </section>
+
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-track">
+      <div class="ticker-item"><span class="dot"></span>Wix Web Design</div>
+      <div class="ticker-item"><span class="dot"></span>UI / UX Design</div>
+      <div class="ticker-item"><span class="dot"></span>Luxury Brands</div>
+      <div class="ticker-item"><span class="dot"></span>Multilingual Sites</div>
+      <div class="ticker-item"><span class="dot"></span>Digital Certificates</div>
+      <div class="ticker-item"><span class="dot"></span>Logo Design</div>
+      <div class="ticker-item"><span class="dot"></span>Abu Dhabi · UAE</div>
+      <div class="ticker-item"><span class="dot"></span>Arabic &amp; English</div>
+      <div class="ticker-item"><span class="dot"></span>Wix Web Design</div>
+      <div class="ticker-item"><span class="dot"></span>UI / UX Design</div>
+      <div class="ticker-item"><span class="dot"></span>Luxury Brands</div>
+      <div class="ticker-item"><span class="dot"></span>Multilingual Sites</div>
+      <div class="ticker-item"><span class="dot"></span>Digital Certificates</div>
+      <div class="ticker-item"><span class="dot"></span>Logo Design</div>
+      <div class="ticker-item"><span class="dot"></span>Abu Dhabi · UAE</div>
+      <div class="ticker-item"><span class="dot"></span>Arabic &amp; English</div>
+    </div>
+  </div>
+
   <script>
     const phrases = ['Wix websites.','UI/UX experiences.','multilingual sites.','digital certificates.','luxury brand presence.','logo identities.'];
-    const twEl = document.getElementById('tw-text');
+    const twEl = document.getElementById('tw-text') as HTMLElement;
     let idx=0,ch=0,del=false;
     function type() {
       const cur = phrases[idx];
@@ -56,6 +80,7 @@ import Layout from '../layouts/Layout.astro';
     }
     setTimeout(type, 1600);
   </script>
+
 </Layout>
 
 <style>
@@ -129,6 +154,7 @@ import Layout from '../layouts/Layout.astro';
     transition: background 0.25s;
   }
   .nav-contact:hover { background: #e63030; color: #f0ede6; }
+
   #hero {
     min-height: 100vh;
     padding: 120px 56px 80px;
@@ -287,4 +313,39 @@ import Layout from '../layouts/Layout.astro';
     to { opacity: 1; transform: none; }
   }
   @keyframes fadeIn { to { opacity: 1; } }
+
+  /* TICKER */
+  .ticker-wrap {
+    overflow: hidden;
+    padding: 16px 0;
+    background: #f0ede6;
+    border-top: 2px solid #e63030;
+  }
+  .ticker-track {
+    display: flex;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+  .ticker-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.18em;
+    color: #0a0a0a;
+    padding: 0 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 32px;
+  }
+  .ticker-item .dot {
+    width: 5px;
+    height: 5px;
+    background: #e63030;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
 </style>
