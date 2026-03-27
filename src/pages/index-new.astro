@@ -50,7 +50,7 @@ import Timeline from '../components/Timeline.astro';
     </div>
   </section>
 
-  <!-- Timeline Section (Optional) -->
+  <!-- Timeline Section -->
   <section id="timeline" class="timeline-section fade-up" style="padding: 4rem 1.5rem;">
     <div class="container">
       <h2 class="section-title">My Journey</h2>
@@ -58,7 +58,7 @@ import Timeline from '../components/Timeline.astro';
     </div>
   </section>
 
-  <!-- Contact Section (Simple placeholder) -->
+  <!-- Contact Section -->
   <section id="contact" class="contact-section fade-up" style="padding: 4rem 1.5rem; background: var(--bg2);">
     <div class="container" style="text-align: center;">
       <h2 class="section-title">Let's Create Something Unforgettable</h2>
@@ -128,27 +128,29 @@ import Timeline from '../components/Timeline.astro';
   </style>
 
   <script>
-    // Intersection Observer for fade-up sections
-    const fadeElements = document.querySelectorAll('.fade-up');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.2 });
-    fadeElements.forEach(el => observer.observe(el));
+    document.addEventListener('DOMContentLoaded', () => {
+      // Fade-up observer
+      const fadeElements = document.querySelectorAll('.fade-up');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.2 });
+      fadeElements.forEach(el => observer.observe(el));
 
-    // Smooth scroll for nav links (if you have them)
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href').substring(1);
-        const target = document.getElementById(targetId);
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth' });
-        }
+      // Smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href').substring(1);
+          const target = document.getElementById(targetId);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
       });
     });
   </script>

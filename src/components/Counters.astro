@@ -51,28 +51,30 @@ const stats = [
 </style>
 
 <script>
-  const counters = document.querySelectorAll('.stat-number');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const el = entry.target;
-        const target = parseInt(el.getAttribute('data-target'), 10);
-        const suffix = el.getAttribute('data-suffix') || '';
-        let current = 0;
-        const increment = target / 30;
-        const update = () => {
-          current += increment;
-          if (current < target) {
-            el.innerText = Math.ceil(current);
-            requestAnimationFrame(update);
-          } else {
-            el.innerText = target + suffix;
-          }
-        };
-        update();
-        observer.unobserve(el);
-      }
-    });
-  }, { threshold: 0.5 });
-  counters.forEach(c => observer.observe(c));
+  document.addEventListener('DOMContentLoaded', () => {
+    const counters = document.querySelectorAll('.stat-number');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.getAttribute('data-target'), 10);
+          const suffix = el.getAttribute('data-suffix') || '';
+          let current = 0;
+          const increment = target / 30;
+          const update = () => {
+            current += increment;
+            if (current < target) {
+              el.innerText = Math.ceil(current);
+              requestAnimationFrame(update);
+            } else {
+              el.innerText = target + suffix;
+            }
+          };
+          update();
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(c => observer.observe(c));
+  });
 </script>
