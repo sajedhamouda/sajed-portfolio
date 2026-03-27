@@ -1,105 +1,73 @@
----
-// ThreeBackground.astro
-// Loads only on client
----
 <canvas id="flower-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;"></canvas>
 
 <script>
-  import * as THREE from 'three';
+  // Load Three.js from CDN
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+  script.onload = () => {
+    // Three.js is now globally available as THREE
+    window.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('flower-canvas');
+      if (!canvas) return;
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.getElementById('flower-canvas');
-    if (!canvas) return;
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+      renderer.setClearColor(0x000000, 0);
 
-    // Scene setup
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    renderer.setClearColor(0x000000, 0); // transparent
-
-    // Create a sphere geometry
-    const geometry = new THREE.SphereGeometry(2.5, 64, 64);
-
-    // Load Flower of Life texture (free high-res image)
-    const textureLoader = new THREE.TextureLoader();
-    // Using a public domain Flower of Life image (you can replace with your own)
-    const texture = textureLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
-    // For actual Flower of Life, we need a proper image. I'll use a placeholder but you can replace with any PNG.
-    // To keep it self-contained, I'll generate a canvas texture with a Flower of Life pattern.
-    // But to avoid external dependencies, I'll use a simple pattern and note you can replace.
-
-    // For simplicity, I'll create a canvas texture with a Flower of Life drawing (optional)
-    // Alternatively, you can use an external image. I'll provide both options.
-
-    // Option 1: external image (replace URL with your Flower of Life image)
-    // const texture = textureLoader.load('/images/flower-of-life.png');
-
-    // Option 2: generate a simple pattern (will not be perfect Flower of Life)
-    const canvasTexture = document.createElement('canvas');
-    canvasTexture.width = 1024;
-    canvasTexture.height = 1024;
-    const ctx = canvasTexture.getContext('2d');
-    ctx.fillStyle = '#f0ede6';
-    ctx.fillRect(0, 0, canvasTexture.width, canvasTexture.height);
-    ctx.strokeStyle = '#e63030';
-    ctx.lineWidth = 8;
-    // Draw a simple mandala-like pattern (you can replace with real Flower of Life)
-    const center = canvasTexture.width/2;
-    const radius = 400;
-    for (let i = 0; i < 6; i++) {
-      const angle = (i * Math.PI * 2) / 6;
-      const x = center + Math.cos(angle) * radius;
-      const y = center + Math.sin(angle) * radius;
+      const geometry = new THREE.SphereGeometry(2.5, 64, 64);
+      // Create a simple texture (you can replace with a real Flower of Life image later)
+      const canvasTexture = document.createElement('canvas');
+      canvasTexture.width = 1024;
+      canvasTexture.height = 1024;
+      const ctx = canvasTexture.getContext('2d');
+      ctx.fillStyle = '#f0ede6';
+      ctx.fillRect(0, 0, canvasTexture.width, canvasTexture.height);
+      ctx.strokeStyle = '#e63030';
+      ctx.lineWidth = 8;
+      const center = canvasTexture.width/2;
+      const radius = 400;
+      for (let i = 0; i < 6; i++) {
+        const angle = (i * Math.PI * 2) / 6;
+        const x = center + Math.cos(angle) * radius;
+        const y = center + Math.sin(angle) * radius;
+        ctx.beginPath();
+        ctx.arc(x, y, radius/2, 0, Math.PI * 2);
+        ctx.stroke();
+      }
       ctx.beginPath();
-      ctx.arc(x, y, radius/2, 0, Math.PI * 2);
+      ctx.arc(center, center, radius, 0, Math.PI * 2);
       ctx.stroke();
-    }
-    ctx.beginPath();
-    ctx.arc(center, center, radius, 0, Math.PI * 2);
-    ctx.stroke();
+      const texture = new THREE.CanvasTexture(canvasTexture);
+      const material = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.3, metalness: 0.1 });
+      const sphere = new THREE.Mesh(geometry, material);
+      scene.add(sphere);
 
-    const finalTexture = new THREE.CanvasTexture(canvasTexture);
+      const ambient = new THREE.AmbientLight(0x404040);
+      scene.add(ambient);
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(1, 2, 1);
+      scene.add(light);
 
-    const material = new THREE.MeshStandardMaterial({ map: finalTexture, roughness: 0.3, metalness: 0.1 });
-    const sphere = new THREE.Mesh(geometry, material);
-    scene.add(sphere);
+      camera.position.z = 6;
 
-    // Lighting
-    const ambient = new THREE.AmbientLight(0x404040);
-    scene.add(ambient);
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(1, 2, 1);
-    scene.add(light);
+      function animate() {
+        requestAnimationFrame(animate);
+        sphere.rotation.y += 0.003;
+        sphere.rotation.x += 0.001;
+        renderer.render(scene, camera);
+      }
+      animate();
 
-    camera.position.z = 6;
-
-    function animate() {
-      requestAnimationFrame(animate);
-      sphere.rotation.y += 0.003;
-      sphere.rotation.x += 0.001;
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    // Resize handler
-    window.addEventListener('resize', () => {
-      const width = canvas.clientWidth;
-      const height = canvas.clientHeight;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
+      window.addEventListener('resize', () => {
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+      });
     });
-  });
+  };
+  document.head.appendChild(script);
 </script>
-
-<style>
-  #flower-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-</style>
