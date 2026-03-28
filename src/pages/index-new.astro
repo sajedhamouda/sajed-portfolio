@@ -9,149 +9,712 @@ import Timeline from '../components/Timeline.astro';
 ---
 
 <Layout>
-  <!-- Hero Section with 3D Background -->
-  <section id="hero" class="hero fade-up" style="position: relative; overflow: hidden; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center;">
+
+  <!-- CURSOR -->
+  <div class="cursor-dot" id="dot"></div>
+  <div class="cursor-ring" id="ring"></div>
+
+  <!-- SCROLL PROGRESS -->
+  <div id="scroll-progress"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">SH</a>
+    <ul class="nav-links">
+      <li><a href="#stats">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#timeline">Journey</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="https://www.linkedin.com/in/m-sajed-hamouda" target="_blank" class="nav-linkedin" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+        </svg>
+      </a>
+      <a href="mailto:sajedhamouda@gmail.com" class="nav-contact">Contact me</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
     <ThreeBackground />
-    <div class="hero-content" style="position: relative; z-index: 2; max-width: 800px; margin: 0 auto; padding: 2rem;">
-      <h1 class="hero-title">Take control of your digital presence</h1>
-      <p class="hero-subtitle">No more wasted budgets. Get your work in front of the right people.</p>
-      <a href="#contact" class="btn">Let's talk</a>
+    <div class="hero-content">
+      <div class="hero-tag">Wix Certified Designer &amp; UI/UX Specialist</div>
+      <h1 class="hero-title">SAJED<span class="line2">HAMOUDA</span></h1>
+      <p class="hero-sub">Founder, Da Vinci Studio &nbsp;·&nbsp; Abu Dhabi, UAE</p>
+      <div class="available-badge">
+        <span class="available-dot"></span>Available for new projects
+      </div>
+      <div class="typewriter-wrap">
+        I build&nbsp;<span class="tw-text" id="tw-text"></span><span class="tw-cursor"></span>
+      </div>
+      <div class="hero-desc">
+        Professional Wix website designer crafting high-performance digital experiences for luxury brands, kitchens, and healthcare — based in the United Arab Emirates.
+      </div>
     </div>
     <ScrollHint />
   </section>
 
-  <!-- Counters Section -->
-  <section id="stats" class="stats-section fade-up" style="padding: 4rem 1.5rem; background: var(--bg2);">
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-track">
+      <div class="ticker-item"><span class="dot"></span>Wix Web Design</div>
+      <div class="ticker-item"><span class="dot"></span>UI / UX Design</div>
+      <div class="ticker-item"><span class="dot"></span>Luxury Brands</div>
+      <div class="ticker-item"><span class="dot"></span>Multilingual Sites</div>
+      <div class="ticker-item"><span class="dot"></span>Digital Certificates</div>
+      <div class="ticker-item"><span class="dot"></span>Logo Design</div>
+      <div class="ticker-item"><span class="dot"></span>Abu Dhabi · UAE</div>
+      <div class="ticker-item"><span class="dot"></span>Arabic &amp; English</div>
+      <div class="ticker-item"><span class="dot"></span>Wix Web Design</div>
+      <div class="ticker-item"><span class="dot"></span>UI / UX Design</div>
+      <div class="ticker-item"><span class="dot"></span>Luxury Brands</div>
+      <div class="ticker-item"><span class="dot"></span>Multilingual Sites</div>
+      <div class="ticker-item"><span class="dot"></span>Digital Certificates</div>
+      <div class="ticker-item"><span class="dot"></span>Logo Design</div>
+      <div class="ticker-item"><span class="dot"></span>Abu Dhabi · UAE</div>
+      <div class="ticker-item"><span class="dot"></span>Arabic &amp; English</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <section id="stats" class="section-pad reveal">
+    <div class="section-bg-num">01</div>
+    <div class="section-eyebrow">/ About Me</div>
     <div class="container">
       <Counters />
     </div>
   </section>
 
-  <!-- Services Section (Numbered Cards) -->
-  <section id="services" class="services-section fade-up" style="padding: 4rem 1.5rem;">
+  <!-- SERVICES -->
+  <section id="services" class="section-pad reveal" style="background:#111111;">
+    <div class="section-bg-num">02</div>
+    <div class="section-eyebrow">/ Services, Skills &amp; Expertise</div>
     <div class="container">
       <NumberedCards
         title="MY EXPERTISE."
         items={[
-          { number: 1, title: "Wix Development", description: "Certified Wix Studio expert building high-performance, responsive websites." },
-          { number: 2, title: "UI/UX Design", description: "User-centered design that drives engagement and conversions." },
-          { number: 3, title: "Brand Identity", description: "Visual identity systems that reflect your brand's essence." },
-          { number: 4, title: "Web Development", description: "Custom code and integration for unique digital experiences." }
+          { number: 1, title: "Wix Website Design", description: "End-to-end Wix website creation. Custom layouts, animations, responsive design, multilingual support, and full launch setup from domain to go-live." },
+          { number: 2, title: "UI/UX & Visual Design", description: "Thoughtful user experience design with Photoshop-crafted assets, brand-consistent visuals, and pixel-perfect execution across all devices." },
+          { number: 3, title: "Logo & Brand Identity", description: "Strategic logo design and brand identity creation — from concept to final files. Bilingual branding for Arabic and English markets across the UAE." },
+          { number: 4, title: "Web Development", description: "Custom code, PDF workflows, digital certificates, and integration for unique digital experiences beyond standard Wix capabilities." }
         ]}
       />
     </div>
   </section>
 
-  <!-- Portfolio Section -->
-  <section id="work" class="work-section fade-up" style="padding: 4rem 1.5rem; background: var(--bg2);">
+  <!-- WORK -->
+  <section id="work" class="section-pad reveal">
+    <div class="section-bg-num">03</div>
+    <div class="section-eyebrow">/ Portfolio Projects</div>
     <div class="container">
-      <h2 class="section-title">Selected Work</h2>
-      <PortfolioGrid />
+      <h2 class="section-title">SELECTED<br/><span>WORK.</span></h2>
     </div>
+    <PortfolioGrid />
   </section>
 
-  <!-- Timeline Section -->
-  <section id="timeline" class="timeline-section fade-up" style="padding: 4rem 1.5rem;">
+  <!-- TIMELINE -->
+  <section id="timeline" class="section-pad reveal" style="background:#111111;">
+    <div class="section-bg-num">04</div>
+    <div class="section-eyebrow">/ My Journey</div>
     <div class="container">
-      <h2 class="section-title">My Journey</h2>
+      <h2 class="section-title">MILESTONES.</h2>
       <Timeline />
     </div>
   </section>
 
-  <!-- Contact Section -->
-  <section id="contact" class="contact-section fade-up" style="padding: 4rem 1.5rem; background: var(--bg2);">
-    <div class="container" style="text-align: center;">
-      <h2 class="section-title">Let's Create Something Unforgettable</h2>
-      <p style="margin-bottom: 2rem;">Have a project in mind? Reach out and let's bring your vision to life.</p>
-      <a href="mailto:sajedhamouda@gmail.com" class="btn">Contact me</a>
+  <!-- CONTACT -->
+  <section id="contact" style="background:#0a0a0a; padding:120px 56px;">
+    <div class="section-bg-num" style="color:rgba(255,255,255,0.03);">05</div>
+    <div class="contact-eyebrow reveal">/ Get In Touch</div>
+    <h2 class="contact-big reveal">LET'S BUILD<br/>SOMETHING<br/><span>REMARKABLE.</span></h2>
+    <div class="contact-row reveal">
+      <a href="mailto:sajedhamouda@gmail.com" class="contact-email">sajedhamouda@gmail.com</a>
+      <a href="tel:+971547474328" class="contact-phone">+971 54 747 4328</a>
+      <span class="contact-loc">United Arab Emirates</span>
+      <a href="https://www.linkedin.com/in/m-sajed-hamouda" target="_blank" class="contact-linkedin">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+        </svg>
+        LinkedIn
+      </a>
+      <a href="mailto:sajedhamouda@gmail.com" class="contact-cta">Send a message</a>
     </div>
   </section>
 
-  <style>
-    /* Global styles specific to this page (can also go in Layout) */
-    .hero {
-      background: var(--bg);
-    }
-    .hero-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(3rem, 8vw, 5rem);
-      line-height: 1.1;
-      margin-bottom: 1rem;
-      color: var(--foreground);
-    }
-    .hero-subtitle {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.2rem;
-      color: var(--muted);
-      margin-bottom: 2rem;
-    }
-    .btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 0.8rem 2rem;
-      text-decoration: none;
-      font-family: 'Outfit', sans-serif;
-      font-weight: 500;
-      border-radius: 2rem;
-      transition: background 0.3s;
-    }
-    .btn:hover {
-      background: #b52222;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .section-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 3rem;
-      letter-spacing: 0.05em;
-      margin-bottom: 3rem;
-      text-align: center;
-      color: var(--foreground);
-    }
-    .fade-up {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    .fade-up.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    @media (max-width: 768px) {
-      .section-title {
-        font-size: 2.5rem;
-      }
-    }
-  </style>
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">DA VINCI <span>STUDIO</span> · Sajed Hamouda</div>
+      <ul class="footer-nav">
+        <li><a href="#stats">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#work">Work</a></li>
+        <li><a href="#timeline">Journey</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 Sajed Hamouda · All Rights Reserved</span>
+      <a href="tel:+971547474328" class="footer-phone">+971 54 747 4328</a>
+      <a href="https://www.linkedin.com/in/m-sajed-hamouda" target="_blank" class="footer-li" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+        </svg>
+      </a>
+    </div>
+  </footer>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Fade-up observer
-      const fadeElements = document.querySelectorAll('.fade-up');
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.2 });
-      fadeElements.forEach(el => observer.observe(el));
+    (function() {
+      function init() {
+        // CURSOR
+        const dot  = document.getElementById('dot');
+        const ring = document.getElementById('ring');
+        let mx=0, my=0, rx=0, ry=0;
+        if (dot && ring) {
+          document.addEventListener('mousemove', e => {
+            mx = e.clientX; my = e.clientY;
+            dot.style.left = mx + 'px';
+            dot.style.top  = my + 'px';
+          });
+          (function anim() {
+            rx += (mx - rx) * 0.11;
+            ry += (my - ry) * 0.11;
+            ring.style.left = rx + 'px';
+            ring.style.top  = ry + 'px';
+            requestAnimationFrame(anim);
+          })();
+          document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => ring.classList.add('big'));
+            el.addEventListener('mouseleave', () => ring.classList.remove('big'));
+          });
+        }
 
-      // Smooth scroll for anchor links
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          e.preventDefault();
-          const targetId = this.getAttribute('href').substring(1);
-          const target = document.getElementById(targetId);
-          if (target) {
-            target.scrollIntoView({ behavior: 'smooth' });
+        // SCROLL PROGRESS
+        const prog = document.getElementById('scroll-progress');
+        if (prog) {
+          window.addEventListener('scroll', () => {
+            const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+            prog.style.width = pct + '%';
+          }, { passive: true });
+        }
+
+        // ACTIVE NAV
+        const navLinks = document.querySelectorAll('.nav-links a');
+        const sectionIds = ['stats','services','work','timeline','contact'];
+        window.addEventListener('scroll', () => {
+          let current = '';
+          sectionIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && window.scrollY >= el.offsetTop - 120) current = id;
+          });
+          navLinks.forEach(a => {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+          });
+        }, { passive: true });
+
+        // TYPEWRITER
+        const phrases = ['Wix websites.','UI/UX experiences.','multilingual sites.','digital certificates.','luxury brand presence.','logo identities.'];
+        const twEl = document.getElementById('tw-text');
+        if (twEl) {
+          let idx=0, ch=0, del=false;
+          function type() {
+            const cur = phrases[idx];
+            if (!del) {
+              twEl.textContent = cur.slice(0, ++ch);
+              if (ch === cur.length) { del = true; setTimeout(type, 1800); return; }
+              setTimeout(type, 65);
+            } else {
+              twEl.textContent = cur.slice(0, --ch);
+              if (ch === 0) { del = false; idx = (idx+1) % phrases.length; setTimeout(type, 400); return; }
+              setTimeout(type, 35);
+            }
           }
-        });
-      });
-    });
+          setTimeout(type, 1800);
+        }
+
+        // REVEAL ON SCROLL
+        const reveals = document.querySelectorAll('.reveal');
+        const ro = new IntersectionObserver(entries => {
+          entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); ro.unobserve(e.target); } });
+        }, { threshold: 0.1 });
+        reveals.forEach(r => ro.observe(r));
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
   </script>
+
 </Layout>
+
+<style>
+  /* SCROLL PROGRESS */
+  #scroll-progress {
+    position: fixed;
+    top: 0; left: 0;
+    width: 0%;
+    height: 3px;
+    background: #e63030;
+    z-index: 9999;
+    transition: width 0.1s linear;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 500;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 56px;
+    border-bottom: 1px solid #222222;
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.1em;
+    color: #e63030;
+    text-decoration: none;
+  }
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #888888;
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 3px;
+    transition: color 0.25s;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 1.5px;
+    background: #e63030;
+    transition: width 0.3s ease;
+  }
+  .nav-links a:hover::after,
+  .nav-links a.active::after { width: 100%; }
+  .nav-links a:hover,
+  .nav-links a.active { color: #e63030; }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .nav-linkedin {
+    color: #888888;
+    transition: color 0.25s;
+    display: flex;
+    align-items: center;
+  }
+  .nav-linkedin:hover { color: #e63030; }
+  .nav-contact {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #0a0a0a;
+    background: #f0ede6;
+    text-decoration: none;
+    padding: 10px 24px;
+    transition: background 0.25s;
+  }
+  .nav-contact:hover { background: #e63030; color: #f0ede6; }
+
+  /* HERO */
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 100px 56px 80px;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+  }
+  .hero-tag {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #e63030;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.3s;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 32px;
+    height: 2px;
+    background: #e63030;
+    flex-shrink: 0;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 16vw, 16rem);
+    line-height: 0.88;
+    letter-spacing: 0.01em;
+    color: #f0ede6;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.5s;
+  }
+  .line2 { display: block; }
+  .hero-sub {
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #888888;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.7s;
+  }
+  .hero-sub::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: #333333;
+    flex-shrink: 0;
+  }
+  .available-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #2db358;
+    background: #0d2b1a;
+    border: 1px solid #1a5c35;
+    padding: 6px 14px;
+    margin-top: 16px;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.85s;
+    width: fit-content;
+  }
+  .available-dot {
+    width: 7px;
+    height: 7px;
+    background: #2db358;
+    border-radius: 50%;
+    animation: pulse-green 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulse-green {
+    0%,100% { box-shadow: 0 0 0 0 rgba(45,179,88,0.4); }
+    50% { box-shadow: 0 0 0 5px rgba(45,179,88,0); }
+  }
+  .typewriter-wrap {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #888888;
+    letter-spacing: 0.05em;
+    min-height: 1.4em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 24px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards 1.4s;
+  }
+  .tw-text { color: #e63030; font-weight: 500; }
+  .tw-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: #e63030;
+    animation: blink 0.75s step-end infinite;
+    vertical-align: middle;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .hero-desc {
+    max-width: 480px;
+    font-size: 0.9rem;
+    line-height: 1.85;
+    color: #888888;
+    margin-top: 2rem;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.9s;
+  }
+
+  /* TICKER */
+  .ticker-wrap {
+    overflow: hidden;
+    padding: 16px 0;
+    background: #f0ede6;
+    border-top: 2px solid #e63030;
+  }
+  .ticker-track {
+    display: flex;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+  .ticker-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.18em;
+    color: #0a0a0a;
+    padding: 0 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 32px;
+  }
+  .ticker-item .dot {
+    width: 5px;
+    height: 5px;
+    background: #e63030;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* SECTIONS */
+  .section-pad {
+    padding: 120px 56px;
+    position: relative;
+  }
+  .section-bg-num {
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(8rem, 20vw, 18rem);
+    color: rgba(255,255,255,0.03);
+    line-height: 1;
+    top: 40px;
+    right: 40px;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+  .section-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #e63030;
+    margin-bottom: 48px;
+    position: relative;
+    z-index: 1;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    color: #f0ede6;
+    margin-bottom: 3rem;
+    position: relative;
+    z-index: 1;
+  }
+  .section-title span { color: #e63030; }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.85s ease, transform 0.85s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* CONTACT */
+  #contact { position: relative; }
+  .contact-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #e63030;
+    margin-bottom: 48px;
+  }
+  .contact-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 10vw, 10rem);
+    line-height: 0.9;
+    color: #f0ede6;
+    margin-bottom: 64px;
+  }
+  .contact-big span { color: #e63030; }
+  .contact-row {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    padding-top: 48px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .contact-email {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.2rem, 2.5vw, 2rem);
+    letter-spacing: 0.06em;
+    color: #f0ede6;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .contact-email:hover { color: #e63030; }
+  .contact-phone {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .contact-phone:hover { color: #e63030; }
+  .contact-loc {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+  .contact-linkedin {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .contact-linkedin:hover { color: #e63030; }
+  .contact-cta {
+    margin-left: auto;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #0a0a0a;
+    background: #f0ede6;
+    text-decoration: none;
+    padding: 14px 32px;
+    transition: all 0.3s;
+  }
+  .contact-cta:hover { background: #e63030; color: #f0ede6; }
+
+  /* FOOTER */
+  footer {
+    background: #0a0a0a;
+    padding: 40px 56px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+  }
+  .footer-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.5);
+  }
+  .footer-brand span { color: #e63030; }
+  .footer-nav {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+  .footer-nav a {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    transition: color 0.25s;
+  }
+  .footer-nav a:hover { color: #e63030; }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-copy {
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+  }
+  .footer-phone {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.2);
+    text-decoration: none;
+    transition: color 0.25s;
+  }
+  .footer-phone:hover { color: #e63030; }
+  .footer-li {
+    color: rgba(255,255,255,0.2);
+    transition: color 0.25s;
+    display: flex;
+    align-items: center;
+  }
+  .footer-li:hover { color: #e63030; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 12px 24px; }
+    .nav-links { display: none; }
+    #hero { padding: 100px 24px 60px; }
+    .section-pad { padding: 80px 24px; }
+    #contact { padding: 80px 24px !important; }
+    footer { padding: 32px 24px; }
+    .footer-top { flex-direction: column; gap: 20px; }
+    .footer-bottom { flex-direction: column; align-items: flex-start; }
+    .contact-cta { margin-left: 0; }
+  }
+</style>
