@@ -42,6 +42,8 @@ class PointerEngineClass {
   private _rafId: number | null = null;
   private _subs: Set<Subscriber> = new Set();
   private _mounted = false;
+  /** True when the user has requested reduced motion — JS-driven pointer effects are skipped. */
+  private _reducedMotion = false;
 
   /** Lerp factor — lower = slower/more cinematic (0.04 ≈ 90% decay in ~56 frames) */
   private LERP = 0.055;
@@ -59,6 +61,11 @@ class PointerEngineClass {
   mount(): void {
     if (this._mounted) return;
     this._mounted = true;
+
+    // Check and track prefers-reduced-motion media query
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    this._reducedMotion = mq.matches;
+    mq.addEventListener('change', (e) => { this._reducedMotion = e.matches; });
 
     const onMove = (e: MouseEvent) => {
       this._raw.x = e.clientX;
@@ -129,8 +136,9 @@ class PointerEngineClass {
       this._current.x += (this._target.x - this._current.x) * this.LERP;
       this._current.y += (this._target.y - this._current.y) * this.LERP;
 
-      // Only notify if we have subscribers and meaningful movement
-      if (this._subs.size > 0) {
+      // Skip JS-driven pointer effects when user prefers reduced motion.
+      // Position is still tracked so getState() remains accurate.
+      if (this._subs.size > 0 && !this._reducedMotion) {
         const snap = this.getState();
         this._subs.forEach(fn => fn(snap));
       }

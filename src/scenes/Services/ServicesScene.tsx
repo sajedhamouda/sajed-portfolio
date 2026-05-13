@@ -79,7 +79,7 @@ function ServicesContent({ state }: { state: SceneState }) {
   const isSecondary = state === 'secondary';
 
   const opacity    = isInactive ? 0 : isSecondary ? 0.3 : 1;
-  const translateY = isInactive ? 50 : isSecondary ? (local < 0.5 ? 25 : -15) : 0;
+  const translateY = isInactive ? 50 : isSecondary ? 30 - local * 50 : 0;
   const blurPx     = isInactive ? 10 : isSecondary ? 4 : 0;
 
   return (

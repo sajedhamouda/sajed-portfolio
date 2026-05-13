@@ -56,23 +56,19 @@ class CinematicOrchestratorClass {
     if (this._started) return;
     this._started = true;
 
-    console.log('[orchestrator] boot started');
-
     // ── Step 1: Register all scenes synchronously ──────────────────────────
     // Must happen before ScrollEngine RAF begins updating scene states.
     const sceneIds = ['hero', 'philosophy', 'services', 'work', 'logos', 'cta'] as const;
     sceneIds.forEach(id => SceneController.register(createScene(id)));
 
-    console.log('[orchestrator] engine ready');
-
     // ── Step 2: Initialize ScrollEngine (Lenis created, stopped) ──────────
     // RAF loop starts here so SceneController gets progress=0 on every frame.
     // Lenis.start() is withheld until entry transition fires.
-    ScrollEngine.initialize();
+    try { ScrollEngine.initialize(); } catch { /* proceed — entry still fires via fallback */ }
 
     // ── Step 3: Mount PointerEngine (mousemove listener + lerp RAF) ───────
     // Passive — no impact on scroll, no blocking.
-    PointerEngine.mount();
+    try { PointerEngine.mount(); } catch { /* non-fatal — pointer effects silently absent */ }
 
     // ── Step 4: Mount app DOM behind loader ───────────────────────────────
     // DotGrid, ThreeCanvas, DepthLayer all begin rendering now, hidden behind
@@ -95,7 +91,6 @@ class CinematicOrchestratorClass {
           clearTimeout(this._fallback);
           this._fallback = null;
         }
-        console.log('[orchestrator] scenes ready');
         this._triggerEntry(callbacks);
       })
       .catch(() => {
@@ -112,8 +107,6 @@ class CinematicOrchestratorClass {
    * Order matters: scroll unlocks first, then visuals reveal.
    */
   private _triggerEntry(callbacks: OrchestratorCallbacks): void {
-    console.log('[orchestrator] entry triggered');
-
     // Unlock scroll immediately — scenes need progress updates during fade-in.
     ScrollEngine.start();
 

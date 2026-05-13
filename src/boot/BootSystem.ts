@@ -38,9 +38,6 @@ class BootSystemClass {
       await this.delay(620);
 
       this.bootComplete = true;
-
-      // Notify the rest of the app
-      document.dispatchEvent(new CustomEvent('cinematic-boot-complete'));
     } catch {
       this.emit('—');
     } finally {

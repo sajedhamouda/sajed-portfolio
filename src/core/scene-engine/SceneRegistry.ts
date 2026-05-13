@@ -23,6 +23,3 @@ export function createScene(id: keyof typeof SCENE_REGISTRY, onStateChange?: (st
   };
 }
 
-export function getAllScenes(): Scene[] {
-  return Object.keys(SCENE_REGISTRY).map(id => createScene(id as keyof typeof SCENE_REGISTRY));
-}
