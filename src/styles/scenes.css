@@ -1,0 +1,1948 @@
+/* ==========================================================================
+   CINEMATIC SCENE SYSTEM — Unified CSS
+   Design system: deep black · neon cyan #00f0ff · violet #a78bfa · Bebas Neue / Outfit
+   All scenes are fixed-position layers controlled by SceneController state.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Design tokens
+   -------------------------------------------------------------------------- */
+:root {
+  --c-bg: #000000;
+  --c-surface: #0a0a0a;
+  --c-border: rgba(255, 255, 255, 0.06);
+  --c-cyan: #00f0ff;
+  --c-cyan-dim: rgba(0, 240, 255, 0.12);
+  --c-cyan-glow: rgba(0, 240, 255, 0.25);
+  --c-violet: #a78bfa;
+  --c-violet-dim: rgba(167, 139, 250, 0.12);
+  --c-text: #f0f0f0;
+  --c-text-muted: rgba(240, 240, 240, 0.55);
+  --c-text-faint: rgba(240, 240, 240, 0.3);
+  --c-green: #34d399;
+
+  --f-display: 'Bebas Neue', sans-serif;
+  --f-body: 'Outfit', sans-serif;
+
+  --ease-cinema: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-slow: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  --max-w: 1200px;
+  --pad-x: clamp(24px, 5vw, 80px);
+}
+
+/* --------------------------------------------------------------------------
+   Scene layer base — used by SceneWrapper via .scene-layer
+   -------------------------------------------------------------------------- */
+.scene-layer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  /* 100dvh respects iOS Safari address bar; 100vh as fallback for older browsers */
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+/* Pointer events only on primary layers that need them (e.g. CTA buttons) */
+.scene-layer[data-scene-state="primary"] .scene-interactive {
+  pointer-events: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Shared components
+   -------------------------------------------------------------------------- */
+
+/* Eye-line label above a headline */
+.section-eyeline,
+.hero-eyeline {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.eyeline-dash {
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--c-cyan);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.eyeline-text {
+  font-family: var(--f-body);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--c-cyan);
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+/* Availability dot */
+.avail-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--c-green);
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.7);
+  animation: dot-pulse 2.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(52, 211, 153, 0.7); }
+  50%       { box-shadow: 0 0 18px rgba(52, 211, 153, 0.3); }
+}
+
+.avail-label {
+  font-family: var(--f-body);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-green);
+}
+
+/* --------------------------------------------------------------------------
+   HERO SCENE
+   -------------------------------------------------------------------------- */
+.hero-layer {
+  z-index: 10;
+}
+
+.hero-wrap {
+  max-width: var(--max-w);
+  width: 100%;
+  padding: 0 var(--pad-x);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+}
+
+/* Large display name */
+.hero-display {
+  font-family: var(--f-display);
+  font-size: clamp(5.5rem, 18vw, 22rem);
+  line-height: 0.87;
+  letter-spacing: 0.01em;
+  color: var(--c-text);
+  margin: 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  text-shadow: 0 0 60px rgba(0, 240, 255, 0.12);
+}
+
+.hero-first {
+  display: block;
+  color: var(--c-text);
+}
+
+.hero-last {
+  display: block;
+  /* Hairline cyan outline on last name for depth */
+  -webkit-text-stroke: 1px rgba(0, 240, 255, 0.35);
+  color: transparent;
+}
+
+.hero-identity {
+  font-family: var(--f-body);
+  font-size: clamp(0.75rem, 1.1vw, 0.875rem);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+  margin-bottom: 24px;
+}
+
+.hero-availability {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  background: rgba(52, 211, 153, 0.05);
+  padding: 8px 18px 8px 14px;
+  margin-bottom: 32px;
+}
+
+.hero-descriptor {
+  font-family: var(--f-body);
+  font-size: clamp(0.875rem, 1.4vw, 1rem);
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--c-text-muted);
+  max-width: 480px;
+}
+
+/* Scroll hint — fades out once user starts scrolling */
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: opacity 1s var(--ease-cinema);
+}
+
+.scroll-line {
+  display: block;
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--c-cyan), transparent);
+  animation: scroll-line-pulse 2s ease-in-out infinite;
+}
+
+@keyframes scroll-line-pulse {
+  0%, 100% { opacity: 0.6; transform: scaleY(1); }
+  50%       { opacity: 1;   transform: scaleY(1.1); }
+}
+
+.scroll-text {
+  font-family: var(--f-body);
+  font-size: 0.55rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--c-cyan);
+  opacity: 0.5;
+}
+
+/* --------------------------------------------------------------------------
+   PHILOSOPHY SCENE
+   -------------------------------------------------------------------------- */
+.philosophy-layer {
+  z-index: 8;
+  align-items: center;
+}
+
+.philosophy-wrap {
+  max-width: 960px;
+  width: 100%;
+  padding: 0 var(--pad-x);
+}
+
+.philo-headline {
+  font-family: var(--f-display);
+  font-size: clamp(3.5rem, 7vw, 7rem);
+  line-height: 0.9;
+  color: var(--c-text);
+  margin-bottom: 40px;
+  letter-spacing: 0.01em;
+}
+
+.philo-em {
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: var(--c-cyan);
+  font-size: 0.9em;
+  letter-spacing: 0.03em;
+  text-shadow: 0 0 30px var(--c-cyan-glow);
+}
+
+.philo-body {
+  margin-bottom: 52px;
+  max-width: 600px;
+  border-left: 1px solid var(--c-border);
+  padding-left: 24px;
+}
+
+.philo-para {
+  font-family: var(--f-body);
+  font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+  font-weight: 300;
+  line-height: 1.85;
+  color: var(--c-text-muted);
+  margin-bottom: 18px;
+}
+
+.philo-para em {
+  color: var(--c-text);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.philo-principles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.philo-principle {
+  padding: 28px 24px;
+  border: 1px solid var(--c-border);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.principle-num {
+  display: block;
+  font-family: var(--f-display);
+  font-size: 1.1rem;
+  color: var(--c-cyan);
+  opacity: 0.6;
+  margin-bottom: 10px;
+  letter-spacing: 0.05em;
+}
+
+.principle-title {
+  font-family: var(--f-display);
+  font-size: 1.6rem;
+  color: var(--c-text);
+  letter-spacing: 0.03em;
+  margin-bottom: 10px;
+}
+
+.principle-body {
+  font-family: var(--f-body);
+  font-size: 0.82rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--c-text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   SERVICES SCENE
+   -------------------------------------------------------------------------- */
+.services-layer {
+  z-index: 7;
+}
+
+.services-wrap {
+  max-width: var(--max-w);
+  width: 100%;
+  padding: 0 var(--pad-x);
+}
+
+.services-headline {
+  font-family: var(--f-display);
+  font-size: clamp(3rem, 6vw, 6rem);
+  color: var(--c-text);
+  letter-spacing: 0.01em;
+  margin-bottom: 40px;
+  line-height: 0.9;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--c-border);
+  border: 1px solid var(--c-border);
+}
+
+.service-card {
+  background: var(--c-bg);
+  padding: 32px 28px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: background 0.5s var(--ease-cinema);
+}
+
+.service-card:hover {
+  background: rgba(0, 240, 255, 0.04);
+}
+
+.service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.service-code {
+  font-family: var(--f-body);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--c-cyan);
+  opacity: 0.6;
+}
+
+.service-subtitle {
+  font-family: var(--f-body);
+  font-size: 0.6rem;
+  color: var(--c-text-faint);
+  letter-spacing: 0.04em;
+}
+
+.service-title {
+  font-family: var(--f-display);
+  font-size: 1.7rem;
+  color: var(--c-text);
+  letter-spacing: 0.03em;
+  line-height: 1;
+  margin: 0;
+}
+
+.service-body {
+  font-family: var(--f-body);
+  font-size: 0.82rem;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--c-text-muted);
+  flex: 1;
+}
+
+.service-arrow {
+  display: block;
+  font-size: 1rem;
+  color: var(--c-cyan);
+  opacity: 0;
+  transition: opacity 0.55s var(--ease-cinema);
+  align-self: flex-end;
+}
+
+.service-card:hover .service-arrow {
+  opacity: 0.7;
+}
+
+/* --------------------------------------------------------------------------
+   WORK SCENE
+   -------------------------------------------------------------------------- */
+.work-layer {
+  z-index: 6;
+}
+
+.work-wrap {
+  max-width: var(--max-w);
+  width: 100%;
+  padding: 0 var(--pad-x);
+}
+
+.work-headline {
+  font-family: var(--f-display);
+  font-size: clamp(3rem, 6vw, 6rem);
+  color: var(--c-text);
+  letter-spacing: 0.01em;
+  margin-bottom: 40px;
+  line-height: 0.9;
+}
+
+.work-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--c-border);
+  border: 1px solid var(--c-border);
+  margin-bottom: 24px;
+}
+
+.work-item {
+  background: var(--c-bg);
+  padding: 28px 32px;
+  display: grid;
+  grid-template-columns: 80px 1fr 32px;
+  align-items: start;
+  gap: 24px;
+  transition: background 0.4s var(--ease-cinema),
+              box-shadow 0.55s var(--ease-cinema);
+  cursor: default;
+}
+
+.work-item:hover {
+  background: rgba(0, 0, 0, 0.7);
+  /* Inset box-shadow instead of border-left — no layout shift */
+  box-shadow: inset 2px 0 0 0 var(--accent, var(--c-cyan));
+}
+
+.work-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 3px;
+}
+
+.work-id {
+  font-family: var(--f-body);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--c-cyan);
+  opacity: 0.55;
+}
+
+.work-category {
+  font-family: var(--f-body);
+  font-size: 0.65rem;
+  color: var(--c-text-faint);
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+.work-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.work-title {
+  font-family: var(--f-display);
+  font-size: 1.9rem;
+  color: var(--c-text);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  margin: 0;
+}
+
+.work-desc {
+  font-family: var(--f-body);
+  font-size: 0.82rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--c-text-muted);
+}
+
+.work-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.work-tag {
+  font-family: var(--f-body);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-violet);
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  padding: 3px 9px;
+}
+
+.work-arrow {
+  font-size: 1rem;
+  color: var(--c-text-faint);
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-cinema);
+  padding-top: 3px;
+}
+
+.work-item:hover .work-arrow {
+  opacity: 1;
+  color: var(--accent, var(--c-cyan));
+}
+
+.work-cta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+}
+
+.work-cta-label {
+  font-family: var(--f-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--c-text-faint);
+}
+
+.work-cta-link {
+  font-family: var(--f-body);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--c-cyan);
+  text-decoration: none;
+  pointer-events: auto;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.work-cta-link:hover {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   LOGOS SCENE
+   -------------------------------------------------------------------------- */
+.logos-layer {
+  z-index: 5;
+}
+
+.logos-wrap {
+  max-width: 900px;
+  width: 100%;
+  padding: 0 var(--pad-x);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Section eyeline already defined above — just override alignment */
+.logos-wrap .section-eyeline {
+  justify-content: center;
+}
+
+.logos-headline {
+  font-family: var(--f-body);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--c-text-muted);
+  max-width: 540px;
+  margin-bottom: 52px;
+}
+
+.logos-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  background: var(--c-border);
+  border: 1px solid var(--c-border);
+  width: 100%;
+  margin-bottom: 48px;
+}
+
+.logo-item {
+  background: var(--c-bg);
+  padding: 28px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  transition: background 0.4s var(--ease-cinema);
+}
+
+.logo-item:hover {
+  background: var(--c-cyan-dim);
+}
+
+.logo-name {
+  font-family: var(--f-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  color: var(--c-text);
+}
+
+.logo-role {
+  font-family: var(--f-body);
+  font-size: 0.55rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+
+.logos-trust {
+  font-family: var(--f-body);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--c-text-faint);
+  line-height: 1.8;
+}
+
+/* --------------------------------------------------------------------------
+   CTA SCENE
+   -------------------------------------------------------------------------- */
+.cta-layer {
+  z-index: 4;
+  /* CTA needs pointer events active for buttons */
+  pointer-events: none;
+}
+
+/* Re-enable on the interactive content area */
+.cta-wrap .cta-actions,
+.cta-wrap .cta-footer {
+  pointer-events: auto;
+}
+
+.cta-wrap {
+  max-width: 800px;
+  width: 100%;
+  padding: 0 var(--pad-x);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.cta-wrap .section-eyeline {
+  justify-content: center;
+}
+
+.cta-headline {
+  font-family: var(--f-display);
+  font-size: clamp(3.5rem, 7vw, 7rem);
+  line-height: 0.9;
+  color: var(--c-text);
+  letter-spacing: 0.01em;
+  margin-bottom: 28px;
+}
+
+.cta-em {
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: var(--c-cyan);
+  font-size: 0.88em;
+  letter-spacing: 0.03em;
+  text-shadow: 0 0 40px var(--c-cyan-glow);
+}
+
+.cta-sub {
+  font-family: var(--f-body);
+  font-size: clamp(0.875rem, 1.4vw, 1rem);
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--c-text-muted);
+  max-width: 420px;
+  margin-bottom: 48px;
+}
+
+.cta-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.cta-btn-primary {
+  font-family: var(--f-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #000;
+  background: var(--c-cyan);
+  padding: 14px 36px;
+  display: inline-block;
+  transition: background 0.3s var(--ease-cinema), box-shadow 0.3s var(--ease-cinema), transform 0.3s var(--ease-cinema);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+}
+
+.cta-btn-primary:hover {
+  background: #33f4ff;
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+.cta-btn-secondary {
+  font-family: var(--f-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--c-violet);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  padding: 14px 32px;
+  display: inline-block;
+  transition: background 0.3s var(--ease-cinema), border-color 0.3s var(--ease-cinema), transform 0.3s var(--ease-cinema);
+}
+
+.cta-btn-secondary:hover {
+  background: var(--c-violet-dim);
+  border-color: rgba(167, 139, 250, 0.6);
+  transform: translateY(-2px);
+}
+
+.cta-availability {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 52px;
+}
+
+.cta-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--f-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--c-text-faint);
+}
+
+.cta-footer-sep {
+  opacity: 0.3;
+}
+
+.cta-footer a {
+  color: var(--c-text-faint);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.cta-footer a:hover {
+  color: var(--c-cyan);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 1100px) {
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-last {
+    -webkit-text-stroke-width: 0.5px;
+  }
+
+  .philo-principles {
+    grid-template-columns: 1fr;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .work-item {
+    grid-template-columns: 60px 1fr;
+  }
+
+  .work-arrow {
+    display: none;
+  }
+
+  .logos-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cta-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .cta-btn-primary,
+  .cta-btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .logos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* Trust stats: 2×2 grid on small phones — credibility block stays readable */
+  .trust-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border: 1px solid var(--c-border);
+  }
+  .trust-stat {
+    border-right: 1px solid var(--c-border);
+    border-bottom: 1px solid var(--c-border);
+  }
+  .trust-stat:nth-child(2),
+  .trust-stat:nth-child(4) {
+    border-right: none;
+  }
+  .trust-stat:nth-child(3),
+  .trust-stat:nth-child(4) {
+    border-bottom: none;
+  }
+}
+
+/* Landscape phones — bento min-height relief so cards don't overflow viewport */
+@media (max-height: 500px) and (orientation: landscape) {
+  .bento-card {
+    min-height: 140px;
+    padding: 20px 24px;
+  }
+  .bento-card--featured {
+    padding: 24px 28px;
+  }
+  /* Condense vertical spacing in scene wraps for tight landscape viewports */
+  .hero-display {
+    font-size: clamp(3.5rem, 14vw, 10rem);
+    margin-bottom: 12px;
+  }
+  .section-eyeline,
+  .hero-eyeline {
+    margin-bottom: 16px;
+  }
+  .hero-descriptor {
+    display: none;
+  }
+}
+
+/* Touch — prevent mobile tap highlight and allow smooth panning */
+.cta-btn-primary,
+.cta-btn-secondary,
+.work-item,
+.bento-card,
+.trust-tool,
+.philo-principle {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ==========================================================================
+   PHASE 4 — ATMOSPHERIC CINEMATIC ENHANCEMENTS
+   All additions are GPU-composited (opacity + transform only).
+   No paint, no layout, no reflow.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   STEP 5 — Hero atmospheric depth
+   Adds a radial glow behind the typography and a subtle lighting falloff.
+   -------------------------------------------------------------------------- */
+
+/* Ambient glow plane behind hero text — pseudo-element on the wrap */
+.hero-wrap::before {
+  content: '';
+  position: absolute;
+  /* Centered behind the name */
+  top: 50%;
+  left: 50%;
+  width: 70vw;
+  height: 60vh;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 50%,
+    rgba(0, 240, 255, 0.045) 0%,
+    rgba(0, 160, 200, 0.025) 40%,
+    transparent 72%
+  );
+  pointer-events: none;
+  z-index: -1;
+  /* Slow fade-in after scene enters — no JS needed */
+  animation: hero-glow-breathe 8s ease-in-out infinite;
+}
+
+@keyframes hero-glow-breathe {
+  0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+  50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.04); }
+}
+
+/* Lateral edge falloff on hero — left and right darkness */
+.hero-layer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.35) 0%,
+    transparent 25%,
+    transparent 75%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Cinematic bottom fade on hero — content lifts from dark floor */
+.hero-layer::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30vh;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* --------------------------------------------------------------------------
+   STEP 6 — Work scene depth boost
+   Dark depth planes and cinematic shadow atmosphere.
+   -------------------------------------------------------------------------- */
+
+/* Atmospheric depth: each work item gets a subtle inner shadow on hover */
+.work-item {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Accent bar — reveals on hover, anchored to item accent color */
+.work-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent, var(--c-cyan));
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 12px var(--accent, var(--c-cyan));
+}
+
+.work-item:hover::before {
+  opacity: 0.8;
+}
+
+/* Depth plane behind work list — slightly lighter than pure black */
+.work-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 50%,
+    rgba(10, 10, 18, 0.6) 0%,
+    transparent 75%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Cinematic top shadow on work section */
+.work-layer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20vh;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.45) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Depth shadow on service cards — inner atmospheric shadow */
+.service-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 60%,
+    rgba(0, 0, 0, 0.25) 100%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.service-card:hover::after {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   STEP 7 — Global color discipline refinements
+   Accent glow ONLY on focus / active states. No oversaturation.
+   -------------------------------------------------------------------------- */
+
+/* Focus state: keyboard navigation — visible, precise, not garish */
+.cta-btn-primary:focus-visible,
+.cta-btn-secondary:focus-visible,
+.work-cta-link:focus-visible {
+  outline: 1px solid var(--c-cyan);
+  outline-offset: 3px;
+}
+
+/* Remove default blue focus ring on everything — use our own */
+*:focus {
+  outline: none;
+}
+*:focus-visible {
+  outline: 1px solid rgba(0, 240, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* Cyan text-shadow only on actively-hovered display text — not ambient */
+.hero-display:hover .hero-first {
+  text-shadow: 0 0 80px rgba(0, 240, 255, 0.15);
+  transition: text-shadow 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Principle card: hover lifts with border accent, no glow overload */
+.philo-principle {
+  transition: border-color 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.philo-principle:hover {
+  border-color: rgba(0, 240, 255, 0.18);
+  background: rgba(0, 240, 255, 0.025);
+}
+
+/* Logo items: subtle cyan tint on hover, restrained */
+.logo-item:hover .logo-name {
+  color: var(--c-cyan);
+  transition: color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------------
+   STEP 8 — Performance safety declarations
+   Explicit containment hints to reduce browser repaint scope.
+   -------------------------------------------------------------------------- */
+
+/* Contain each scene layer — prevents repaint propagation */
+.scene-layer {
+  contain: layout style;
+}
+
+/* Isolate atmospheric canvas elements */
+.hero-wrap,
+.philosophy-wrap,
+.services-wrap,
+.work-wrap,
+.logos-wrap,
+.cta-wrap {
+  isolation: isolate;
+}
+
+/* Reduce paint area for animated elements */
+.avail-dot,
+.scroll-line,
+.service-arrow,
+.work-arrow,
+.work-item::before {
+  will-change: opacity;
+}
+
+.work-item {
+  will-change: background, box-shadow;
+}
+
+.hero-wrap::before,
+.hero-scroll-hint {
+  will-change: opacity, transform;
+}
+
+/* prefers-reduced-motion — kill all decorative animation */
+@media (prefers-reduced-motion: reduce) {
+  .hero-wrap::before,
+  .avail-dot,
+  .scroll-line {
+    animation: none;
+  }
+
+  .hero-wrap,
+  .philosophy-wrap,
+  .services-wrap,
+  .work-wrap,
+  .logos-wrap,
+  .cta-wrap {
+    transition: opacity 0.3s ease !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
+
+/* ==========================================================================
+   PHASE 5 — INTERACTIVE CINEMATIC RESPONSE
+   All additions: pointer-events enable, transition discipline, CSS-only hover
+   states that complement the JS pointer system.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Work scene: pointer events active for hover tracking
+   -------------------------------------------------------------------------- */
+.work-layer[data-scene-state="primary"] .work-list,
+.work-layer[data-scene-state="primary"] .work-item {
+  pointer-events: auto;
+}
+
+/* Hovered work item: subtle left border reveal already handled in Phase 4.
+   Here we add a micro translateY lift — slow, architectural. */
+.work-item:hover {
+  transform: translateY(-2px);
+  transition:
+    transform      0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity        0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    filter         0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    background     0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color   0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Work arrow: reveals on hover with a right-upward micro-shift */
+.work-item:hover .work-arrow {
+  opacity: 1;
+  color: var(--accent, var(--c-cyan));
+  transform: translate(2px, -2px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------------
+   CTA buttons: architectural weight — elevation, not bounce
+   -------------------------------------------------------------------------- */
+.cta-layer[data-scene-state="primary"] .cta-actions {
+  pointer-events: auto;
+}
+
+/* Primary button: glow deepens, no scale */
+.cta-btn-primary:hover {
+  background: #33f4ff;
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.55),
+              0 0 80px rgba(0, 240, 255, 0.18);
+  /* No transform here — JS pointer system provides the lift */
+}
+
+/* Secondary button: border illuminates, no scale */
+.cta-btn-secondary:hover {
+  background: rgba(167, 139, 250, 0.08);
+  border-color: rgba(167, 139, 250, 0.55);
+  box-shadow: 0 0 20px rgba(167, 139, 250, 0.15);
+}
+
+/* Transition discipline: buttons always use slow transitions */
+.cta-btn-primary,
+.cta-btn-secondary {
+  transition:
+    background    0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow    0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color  0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform     0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------------
+   Service cards: pointer events + transition discipline
+   -------------------------------------------------------------------------- */
+.services-layer[data-scene-state="primary"] .services-grid,
+.services-layer[data-scene-state="primary"] .service-card {
+  pointer-events: auto;
+}
+
+/* Service card hover: restrained cyan edge reveal */
+.service-card:hover {
+  background: rgba(0, 240, 255, 0.035);
+  border-top: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   Philosophy principles: pointer events on primary only
+   -------------------------------------------------------------------------- */
+.philosophy-layer[data-scene-state="primary"] .philo-principles {
+  pointer-events: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Logos: pointer on primary
+   -------------------------------------------------------------------------- */
+.logos-layer[data-scene-state="primary"] .logos-grid {
+  pointer-events: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Hero: pointer events to enable cursor field response
+   (touch-through is fine since hero-layer itself blocks none)
+   -------------------------------------------------------------------------- */
+.hero-layer[data-scene-state="primary"] .hero-display,
+.hero-layer[data-scene-state="primary"] .hero-wrap {
+  pointer-events: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Motion hierarchy enforcement — interaction transforms are always
+   subordinate to scene transition transforms via transition-duration
+   -------------------------------------------------------------------------- */
+
+/* Scene entry/exit always wins — 1.4–2.2s */
+/* Pointer response always slower to settle — 0.3–0.8s */
+/* This means scene transitions override pointer micro-movements during scroll */
+
+/* --------------------------------------------------------------------------
+   Phase 5 prefers-reduced-motion additions
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  /* Kill JS-driven transforms — the PointerEngine still runs but
+     these elements have CSS transitions disabled so no visual change */
+  .hero-first,
+  .hero-last,
+  .cta-headline,
+  .cta-btn-primary,
+  .cta-btn-secondary {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .work-item:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* ==========================================================================
+   PHASE 6 — SIGNATURE VISUAL IDENTITY LAYER
+   Steps 1–8: Hero frame, Bento services, Institutional trust,
+   Signature micro-details, Visual DNA, Typography refinement, Polish.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   STEP 1 — Hero Signature System
+   Corner bracket frame + signature framing language
+   -------------------------------------------------------------------------- */
+
+/* Corner bracket frame — four L-shaped corners */
+.hero-sig-frame::before,
+.hero-sig-frame::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: rgba(0, 240, 255, 0.22);
+  border-style: solid;
+  pointer-events: none;
+}
+
+/* Top-left corner */
+.hero-sig-frame::before {
+  top: 0;
+  left: 0;
+  border-width: 1px 0 0 1px;
+}
+
+/* Bottom-right corner */
+.hero-sig-frame::after {
+  bottom: 0;
+  right: 0;
+  border-width: 0 1px 1px 0;
+}
+
+/* Top-right + bottom-left via shadow elements on the frame's own pseudo */
+/* We use a wrapper approach: two additional pseudo-elements via a sibling trick.
+   Since CSS only allows ::before and ::after, we use the frame div's children
+   injected in JSX. But to keep the component pure, we handle TR+BL via
+   a global class added by HeroSignature's wrapper div. */
+
+/* Alternative: use box-shadow on four positioned spans inside the frame.
+   We use the cleaner approach: the .hero-sig-frame gets four CSS box-shadows
+   that paint as bracket corners. */
+.hero-sig-frame {
+  /* Four-corner bracket painted with inset box-shadows on a transparent box */
+  /* Each shadow: x-offset y-offset blur spread color */
+  box-shadow:
+    /* top-right corner — right border */
+    inset -1px 0 0 0 rgba(0, 240, 255, 0.22),
+    /* bottom-left corner — left border */
+    inset 1px 0 0 0 rgba(0, 240, 255, 0.08);
+  /* The ::before/::after handle top-left and bottom-right */
+}
+
+/* Slow fade-in of the corner borders (::before / ::after pseudo-elements).
+   The parent .hero-sig-frame opacity is now React-controlled (HeroSignature.tsx)
+   so we only animate the pseudo-elements here. */
+.hero-sig-frame::before,
+.hero-sig-frame::after {
+  animation: sig-frame-in 3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes sig-frame-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   STEP 2 — Magic Bento Services System
+   Asymmetric art-directed cinematic grid
+   -------------------------------------------------------------------------- */
+
+/* Override old services-grid */
+.bento-grid {
+  display: grid;
+  /* 3 equal columns — featured cards span 2 */
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  gap: 1px;
+  background: var(--c-border);
+  border: 1px solid var(--c-border);
+}
+
+/* Row 1: featured (2/3) + standard (1/3) */
+.bento-card:nth-child(1) { grid-column: span 2; }  /* Web Design — wide */
+.bento-card:nth-child(2) { grid-column: span 1; }  /* UI/UX — narrow */
+/* Row 2: standard (1/3) + featured (2/3) */
+.bento-card:nth-child(3) { grid-column: span 1; }  /* Brand Identity — narrow */
+.bento-card:nth-child(4) { grid-column: span 2; }  /* Motion — wide */
+
+.bento-card {
+  background: var(--c-bg);
+  padding: 36px 32px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 200px;
+  transition:
+    background 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+/* Featured card: more breathing room */
+.bento-card--featured {
+  padding: 40px 38px;
+}
+
+/* Subtle top border reveal on hover — single accent line */
+.bento-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--c-cyan) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: scaleX(0.3);
+  transition:
+    opacity  0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bento-card:hover::before {
+  opacity: 0.5;
+  transform: scaleX(1);
+}
+
+.bento-card:hover {
+  background: rgba(0, 240, 255, 0.025);
+}
+
+.bento-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.bento-title {
+  font-family: var(--f-display);
+  font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+  color: var(--c-text);
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+  margin: 0;
+}
+
+/* Featured card: larger title */
+.bento-card--featured .bento-title {
+  font-size: clamp(2.2rem, 3.5vw, 3.2rem);
+}
+
+.bento-body {
+  font-family: var(--f-body);
+  font-size: 0.85rem;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--c-text-muted);
+  flex: 1;
+  max-width: 400px;
+}
+
+/* Featured stat block — only on wide cards */
+.bento-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--c-border);
+}
+
+.bento-stat-number {
+  font-family: var(--f-display);
+  font-size: 2.4rem;
+  color: var(--c-cyan);
+  letter-spacing: 0.02em;
+  opacity: 0.7;
+  line-height: 1;
+}
+
+.bento-stat-label {
+  font-family: var(--f-body);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+
+.bento-arrow {
+  position: absolute;
+  bottom: 20px;
+  right: 24px;
+  font-size: 0.9rem;
+  color: var(--c-cyan);
+  opacity: 0;
+  transform: translate(0, 0);
+  transition:
+    opacity   0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bento-card:hover .bento-arrow {
+  opacity: 0.65;
+  transform: translate(2px, -2px);
+}
+
+/* Responsive bento — collapse to 2 cols then 1 */
+@media (max-width: 900px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .bento-card:nth-child(1),
+  .bento-card:nth-child(2),
+  .bento-card:nth-child(3),
+  .bento-card:nth-child(4) {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 560px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   STEP 3 — Institutional Trust / Logos Scene
+   Two-tier hierarchy, breathing stagger, credibility stats
+   -------------------------------------------------------------------------- */
+
+/* Center the eyeline on logos */
+.logos-eyeline {
+  justify-content: center;
+}
+
+/* Tools container — horizontal wrapping row */
+.trust-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: var(--c-border);
+  border: 1px solid var(--c-border);
+  width: 100%;
+  margin-bottom: 1px;
+}
+
+.trust-tool {
+  background: var(--c-bg);
+  flex: 1;
+  min-width: 120px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.trust-tool:hover {
+  background: var(--c-cyan-dim);
+}
+
+/* Tier visual hierarchy */
+.trust-tool--t1 {
+  opacity: 0.9;
+}
+
+.trust-tool--t2 {
+  opacity: 0.55;
+}
+
+.trust-tool--t1:hover,
+.trust-tool--t2:hover {
+  opacity: 1;
+}
+
+/* Tier-specific breathing keyframes — direct opacity per tier */
+.trust-tool--t1 {
+  animation: trust-breathe-t1 7s ease-in-out infinite;
+}
+
+.trust-tool--t2 {
+  animation: trust-breathe-t2 9s ease-in-out infinite;
+}
+
+@keyframes trust-breathe-t1 {
+  0%, 100% { opacity: 0.88; }
+  50%       { opacity: 0.65; }
+}
+
+@keyframes trust-breathe-t2 {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 0.35; }
+}
+
+.trust-tool-name {
+  font-family: var(--f-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.05em;
+  color: var(--c-text);
+  line-height: 1;
+}
+
+.trust-tool--t2 .trust-tool-name {
+  font-size: 1.1rem;
+}
+
+.trust-tool-role {
+  font-family: var(--f-body);
+  font-size: 0.52rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+
+/* Separator — visual DNA horizontal rule */
+.logos-sep {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    var(--c-border) 20%,
+    rgba(0, 240, 255, 0.12) 50%,
+    var(--c-border) 80%,
+    transparent 100%
+  );
+  margin: 40px 0;
+}
+
+/* Credibility stats row */
+.trust-stats {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  border: 1px solid var(--c-border);
+}
+
+.trust-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 28px 16px;
+  border-right: 1px solid var(--c-border);
+  position: relative;
+}
+
+.trust-stat:last-child {
+  border-right: none;
+}
+
+/* Subtle shimmer on stat value — single keyframe, slow */
+.trust-stat-value {
+  font-family: var(--f-display);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  color: var(--c-text);
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.trust-stat-label {
+  font-family: var(--f-body);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+
+/* --------------------------------------------------------------------------
+   STEP 4+5 — Signature Micro-Details + Visual DNA System
+   Recurring framing language across all scenes
+   -------------------------------------------------------------------------- */
+
+/* Cinematic horizontal rule — used between sections */
+.sig-rule {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 240, 255, 0.1) 40%,
+    rgba(0, 240, 255, 0.1) 60%,
+    transparent 100%
+  );
+  margin: 32px 0;
+}
+
+/* Eyeline dash refined — longer on featured sections */
+.logos-eyeline .eyeline-dash {
+  width: 48px;
+}
+
+/* Section-level number counter — visual DNA element */
+.scene-number {
+  font-family: var(--f-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--c-text-faint);
+  position: absolute;
+  right: var(--pad-x);
+  top: 50%;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  opacity: 0.4;
+}
+
+/* Typography edge shimmer on display headlines — optical micro-detail */
+/* Only on hover of the entire scene — not always active */
+.hero-display .hero-first {
+  text-shadow: 0 0 60px rgba(0, 240, 255, 0.08);
+  transition: text-shadow 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Restrained glow pulse on availability badge */
+.hero-availability {
+  animation: avail-glow 5s ease-in-out infinite;
+}
+
+@keyframes avail-glow {
+  0%, 100% { box-shadow: none; }
+  50%       { box-shadow: 0 0 12px rgba(52, 211, 153, 0.08); }
+}
+
+/* Philo em — slow glow breath */
+.philo-em {
+  animation: em-breathe 6s ease-in-out infinite;
+}
+
+@keyframes em-breathe {
+  0%, 100% { text-shadow: 0 0 20px rgba(0, 240, 255, 0.15); }
+  50%       { text-shadow: 0 0 40px rgba(0, 240, 255, 0.28); }
+}
+
+/* CTA em — matching breath, slower */
+.cta-em {
+  animation: em-breathe 8s ease-in-out infinite;
+}
+
+/* Work section: left border on the entire wrap — directional framing */
+.work-wrap {
+  border-left: 1px solid var(--c-border);
+  padding-left: calc(var(--pad-x) - 1px);
+}
+
+/* --------------------------------------------------------------------------
+   STEP 6 — Typography Refinement
+   Premium reading rhythm, tighter structure, restrained contrast
+   -------------------------------------------------------------------------- */
+
+/* Hero display: refined tracking on outline name */
+.hero-last {
+  letter-spacing: 0.015em;
+}
+
+/* Philosophy headline: tighter leading for large type */
+.philo-headline {
+  letter-spacing: -0.01em;
+}
+
+/* Eyeline text: slightly wider tracking for authority */
+.eyeline-text {
+  letter-spacing: 0.28em;
+}
+
+/* Work headline: let it breathe less — technical density */
+.work-headline {
+  letter-spacing: -0.005em;
+}
+
+/* Services headline matching */
+.services-headline {
+  letter-spacing: -0.005em;
+}
+
+/* CTA headline: cinematic scale refinement */
+.cta-headline {
+  letter-spacing: -0.01em;
+}
+
+/* Body text across all scenes: slightly tighter leading for premium density */
+.philo-para,
+.bento-body,
+.work-desc {
+  letter-spacing: 0.008em;
+}
+
+/* Trust stat numbers: display font optical adjustment */
+.trust-stat-value {
+  letter-spacing: -0.02em;
+}
+
+/* --------------------------------------------------------------------------
+   STEP 7+8 — Performance + Final Polish
+   -------------------------------------------------------------------------- */
+
+/* Bento grid: contain paint scope */
+.bento-grid {
+  contain: layout style;
+}
+
+/* Trust tools: contain paint scope */
+.trust-tools,
+.trust-stats {
+  contain: layout style;
+}
+
+/* Breathing animations: hint compositor */
+.trust-tool {
+  will-change: opacity;
+}
+
+/* Pseudo-elements for sig-frame: fill-mode + compositor hint */
+.hero-sig-frame::before,
+.hero-sig-frame::after {
+  animation-fill-mode: both;
+  animation-duration: 3s;
+  will-change: opacity;
+}
+
+/* Bento hover transitions: GPU only */
+.bento-card::before {
+  will-change: opacity, transform;
+}
+
+/* Reduced motion: kill all new animations */
+@media (prefers-reduced-motion: reduce) {
+  .trust-tool--t1,
+  .trust-tool--t2,
+  .hero-availability,
+  .philo-em,
+  .cta-em,
+  .hero-sig-frame,
+  .hero-sig-frame::before,
+  .hero-sig-frame::after {
+    animation: none !important;
+  }
+
+  .bento-card::before {
+    transition: none !important;
+  }
+}
+
+/* ==========================================================================
+   PHASE 7 — CINEMATIC POLISH & PERCEPTUAL REFINEMENT
+   Transition choreography, micro-interaction weight, atmospheric balance,
+   scene rhythm, anti-web-feel, end-state stillness.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   7.1 — Interaction weight corrections
+   CTA button transform was 0.3s — too snappy, breaks motion hierarchy.
+   Correct it to sit within the 0.55–0.64s interaction band.
+   -------------------------------------------------------------------------- */
+.cta-btn-primary,
+.cta-btn-secondary {
+  transition:
+    background    0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow    0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color  0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform     0.64s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+/* All interactive links need explicit cursor */
+.work-cta-link,
+.cta-footer a {
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
+   7.2 — Work CTA link: add color transition for smooth hover
+   -------------------------------------------------------------------------- */
+.work-cta-link {
+  transition: color 0.48s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------------
+   7.3 — Trust tool hover: opacity transition override wins over animation
+   The breathing keyframe uses animation; hover must override via transition.
+   -------------------------------------------------------------------------- */
+.trust-tool {
+  transition: background 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------------
+   7.4 — Philosophy principle: add micro-lift on hover for weight
+   Current hover only changes border and background.
+   A 2px lift at 0.72s reads as considered mass, not bounce.
+   -------------------------------------------------------------------------- */
+.philo-principle {
+  transition: border-color 0.52s cubic-bezier(0.16, 1, 0.3, 1),
+              background   0.52s cubic-bezier(0.16, 1, 0.3, 1),
+              transform    0.72s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.philo-principle:hover {
+  border-color: rgba(0, 240, 255, 0.18);
+  background: rgba(0, 240, 255, 0.025);
+  transform: translateY(-2px);
+}
+
+/* --------------------------------------------------------------------------
+   7.5 — Scene rhythm: CTA sub-headline slightly lifted opacity
+   The emotional close should feel more present than mid-body text.
+   -------------------------------------------------------------------------- */
+.cta-sub {
+  color: rgba(240, 240, 240, 0.62);
+}
+
+/* --------------------------------------------------------------------------
+   7.6 — Anti-web-feel: bento service-code and bento-header alignment
+   Both use 0.6rem but service-code uses font-body at 0.6rem with letter-spacing
+   while bento header uses bento's own spacing. Unify the code/subtitle font size.
+   -------------------------------------------------------------------------- */
+.service-code,
+.bento-header .service-code {
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+}
+
+/* bento-body max-width on featured cards: let copy breathe further */
+.bento-card--featured .bento-body {
+  max-width: 460px;
+}
+
+/* --------------------------------------------------------------------------
+   7.7 — End-state stillness: remove will-change after animations settle
+   Atmospheric breathing elements should release compositor layers after init.
+   CSS cannot directly remove will-change after N seconds, but we can scope it
+   only to the active animation phase via a class added/removed by SceneController.
+   As a CSS-only approximation: hint compositor but do not over-promote.
+   trust-tool breathing is always on — keep will-change: opacity.
+   hero-sig-frame: remove after 4s using animation-delay trick on a null animation.
+   -------------------------------------------------------------------------- */
+@keyframes release-will-change {
+  to { will-change: auto; }
+}
+
+/* hero-sig-frame parent: no CSS animation — opacity is React-controlled.
+   The ::before/::after pseudo-elements still animate via the rule above. */
+.hero-sig-frame::before,
+.hero-sig-frame::after {
+  animation: sig-frame-in 3s cubic-bezier(0.16, 1, 0.3, 1) both,
+             release-will-change 0s 4s forwards;
+}
+
+/* --------------------------------------------------------------------------
+   7.8 — Reduced motion additions for Phase 7
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .philo-principle:hover {
+    transform: none !important;
+  }
+  .trust-tool {
+    transition: background 0.3s ease, opacity 0.3s ease;
+  }
+}
