@@ -35,18 +35,27 @@ type Subscriber = (state: PointerState) => void;
 class PointerEngineClass {
   private static _instance: PointerEngineClass;
 
-  private _raw    = { x: 0, y: 0 };
-  private _target = { x: 0, y: 0 };
+  private _raw     = { x: 0, y: 0 };
+  private _target  = { x: 0, y: 0 };
   private _current = { x: 0, y: 0 };
   private _active  = false;
   private _rafId: number | null = null;
+  private _lastTime: number | null = null;
   private _subs: Set<Subscriber> = new Set();
   private _mounted = false;
   /** True when the user has requested reduced motion — JS-driven pointer effects are skipped. */
   private _reducedMotion = false;
 
-  /** Lerp factor — lower = slower/more cinematic (0.04 ≈ 90% decay in ~56 frames) */
-  private LERP = 0.055;
+  /**
+   * Target lerp factor at 60fps — delta-time normalized in the RAF tick so
+   * behaviour is consistent at 30fps, 60fps, and 120fps.
+   * 0.055 at 60fps ≈ 90% decay in ~40 frames (~667ms).
+   */
+  private readonly LERP_60 = 0.055;
+
+  // Stored listener references so unmount() can cleanly remove them.
+  private _onMove: ((e: MouseEvent) => void) | null = null;
+  private _onLeave: (() => void) | null = null;
 
   private constructor() {}
 
@@ -67,7 +76,7 @@ class PointerEngineClass {
     this._reducedMotion = mq.matches;
     mq.addEventListener('change', (e) => { this._reducedMotion = e.matches; });
 
-    const onMove = (e: MouseEvent) => {
+    this._onMove = (e: MouseEvent) => {
       this._raw.x = e.clientX;
       this._raw.y = e.clientY;
       if (!this._active) {
@@ -80,18 +89,25 @@ class PointerEngineClass {
       this._active = true;
     };
 
-    const onLeave = () => { this._active = false; };
+    this._onLeave = () => { this._active = false; };
 
-    window.addEventListener('mousemove', onMove, { passive: true });
-    window.addEventListener('mouseleave', onLeave, { passive: true });
+    window.addEventListener('mousemove', this._onMove, { passive: true });
+    window.addEventListener('mouseleave', this._onLeave, { passive: true });
 
     this._startRaf();
   }
 
   unmount(): void {
-    // In practice this is never called (app lifetime = page lifetime)
-    if (this._rafId !== null) cancelAnimationFrame(this._rafId);
+    if (this._rafId !== null) {
+      cancelAnimationFrame(this._rafId);
+      this._rafId = null;
+    }
+    if (this._onMove)  window.removeEventListener('mousemove',  this._onMove);
+    if (this._onLeave) window.removeEventListener('mouseleave', this._onLeave);
+    this._onMove  = null;
+    this._onLeave = null;
     this._mounted = false;
+    this._lastTime = null;
   }
 
   subscribe(fn: Subscriber): () => void {
@@ -127,14 +143,21 @@ class PointerEngineClass {
   }
 
   private _startRaf(): void {
-    const tick = () => {
+    const tick = (now: number) => {
+      // Delta-time normalized LERP — consistent feel at 30/60/120fps.
+      // dt is clamped to [0, 100ms] so a tab-resume spike doesn't jump.
+      const dt = this._lastTime === null ? 16.67 : Math.min(now - this._lastTime, 100);
+      this._lastTime = now;
+      // Equivalent per-frame lerp for this dt: 1 - (1-LERP_60)^(dt/16.667)
+      const lerp = 1 - Math.pow(1 - this.LERP_60, dt / 16.667);
+
       // Lerp toward raw — creates smooth follow without JS spring physics
       if (this._active) {
         this._target.x = this._raw.x;
         this._target.y = this._raw.y;
       }
-      this._current.x += (this._target.x - this._current.x) * this.LERP;
-      this._current.y += (this._target.y - this._current.y) * this.LERP;
+      this._current.x += (this._target.x - this._current.x) * lerp;
+      this._current.y += (this._target.y - this._current.y) * lerp;
 
       // Skip JS-driven pointer effects when user prefers reduced motion.
       // Position is still tracked so getState() remains accurate.

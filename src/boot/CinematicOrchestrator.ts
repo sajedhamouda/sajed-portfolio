@@ -121,12 +121,20 @@ class CinematicOrchestratorClass {
     setTimeout(() => callbacks.onLoaderUnmount(), 1300);
   }
 
-  /** Cancel the safety fallback (called on App unmount for cleanliness). */
+  /**
+   * Tear down — called by App.tsx cleanup on unmount.
+   * Cancels any pending timers, destroys engines, and resets the started
+   * flag so the pipeline can run cleanly on a future re-mount (e.g. SPA
+   * back-navigation or React StrictMode second mount in development).
+   */
   cancel(): void {
     if (this._fallback) {
       clearTimeout(this._fallback);
       this._fallback = null;
     }
+    ScrollEngine.destroy();
+    PointerEngine.unmount();
+    this._started = false;
   }
 }
 
