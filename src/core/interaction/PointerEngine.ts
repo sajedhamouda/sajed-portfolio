@@ -46,6 +46,8 @@ class PointerEngineClass {
   private _mounted = false;
   /** True when the user has requested reduced motion — JS-driven pointer effects are skipped. */
   private _reducedMotion = false;
+  /** True on coarse-pointer devices (touch/stylus) — mousemove never fires reliably, skip entirely. */
+  private _coarsePointer = false;
 
   /**
    * Target lerp factor at 60fps — delta-time normalized in the RAF tick so
@@ -71,6 +73,11 @@ class PointerEngineClass {
   mount(): void {
     if (this._mounted) return;
     this._mounted = true;
+
+    // Skip entirely on coarse-pointer devices (touchscreens, stylus-only tablets).
+    // mousemove events don't fire reliably there and the cursor effects are meaningless.
+    this._coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    if (this._coarsePointer) return;
 
     // Check and track prefers-reduced-motion media query
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');

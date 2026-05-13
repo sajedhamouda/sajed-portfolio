@@ -1,18 +1,24 @@
-import { useEffect, useState } from 'react';
-import { ThreeCanvas } from './visual/three/ThreeCanvas';
-import { DotGrid } from './visual/atmosphere/DotGrid';
-import { DepthLayer } from './visual/atmosphere/DepthLayer';
-import { CursorField } from './visual/atmosphere/CursorField';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { HeroSignature } from './visual/signature/HeroSignature';
 import { HeroScene } from './scenes/Hero/HeroScene';
-import { PhilosophyScene } from './scenes/Philosophy/PhilosophyScene';
-import { ServicesScene } from './scenes/Services/ServicesScene';
-import { WorkScene } from './scenes/Work/WorkScene';
-import { LogosScene } from './scenes/Logos/LogosScene';
-import { CTAScene } from './scenes/CTA/CTAScene';
 import { CinematicOrchestrator } from './boot/CinematicOrchestrator';
 import './scenes/Hero/HeroScene.css';
 import './styles/scenes.css';
+
+// Atmosphere layers are lazy-loaded so Three.js (and other heavy deps) don't
+// land in the main entry bundle. They mount after cinematic-entry fires.
+const ThreeCanvas = lazy(() => import('./visual/three/ThreeCanvas').then(m => ({ default: m.ThreeCanvas })));
+const DotGrid     = lazy(() => import('./visual/atmosphere/DotGrid').then(m => ({ default: m.DotGrid })));
+const DepthLayer  = lazy(() => import('./visual/atmosphere/DepthLayer').then(m => ({ default: m.DepthLayer })));
+const CursorField = lazy(() => import('./visual/atmosphere/CursorField').then(m => ({ default: m.CursorField })));
+
+// Non-hero scenes are lazy-loaded — they land in separate chunks and are
+// fetched only after the cinematic loader clears, keeping first-paint lean.
+const PhilosophyScene = lazy(() => import('./scenes/Philosophy/PhilosophyScene').then(m => ({ default: m.PhilosophyScene })));
+const ServicesScene   = lazy(() => import('./scenes/Services/ServicesScene').then(m => ({ default: m.ServicesScene })));
+const WorkScene       = lazy(() => import('./scenes/Work/WorkScene').then(m => ({ default: m.WorkScene })));
+const LogosScene      = lazy(() => import('./scenes/Logos/LogosScene').then(m => ({ default: m.LogosScene })));
+const CTAScene        = lazy(() => import('./scenes/CTA/CTAScene').then(m => ({ default: m.CTAScene })));
 
 // Dev-only observability — tree-shaken entirely in production builds.
 // Vite replaces import.meta.env.DEV with false and the bundler removes
@@ -40,11 +46,15 @@ const ASCII_LOGO = `\
 export function App() {
   // Orchestrator-driven UI state.
   // App.tsx owns ONLY the visual shell — it has no knowledge of timing or engines.
-  const [domReady, setDomReady]           = useState(false);
-  const [loaderVisible, setLoaderVisible] = useState(true);
-  const [loaderOpacity, setLoaderOpacity] = useState(1);
-  const [appOpacity, setAppOpacity]       = useState(0);
-  const [status, setStatus]               = useState('DA VINCI STUDIO');
+  const [domReady, setDomReady]               = useState(false);
+  const [loaderVisible, setLoaderVisible]     = useState(true);
+  const [loaderOpacity, setLoaderOpacity]     = useState(1);
+  const [appOpacity, setAppOpacity]           = useState(0);
+  const [status, setStatus]                   = useState('DA VINCI STUDIO');
+  // Atmosphere layers (DotGrid, ThreeCanvas, DepthLayer, CursorField) mount only
+  // after cinematic-entry fires — when the loader starts fading and they become
+  // visible. Prevents wasteful RAF + WebGL work hidden behind the loader.
+  const [atmosphereReady, setAtmosphereReady] = useState(false);
 
   useEffect(() => {
     // Initialize observability in dev — no-op in production (tree-shaken).
@@ -72,7 +82,15 @@ export function App() {
       onLoaderUnmount: () => setLoaderVisible(false),
     });
 
-    return () => CinematicOrchestrator.cancel();
+    // Mount atmosphere layers when cinematic-entry fires (loader begins fading).
+    // Using { once: true } so the listener auto-cleans itself.
+    const onEntry = () => setAtmosphereReady(true);
+    window.addEventListener('cinematic-entry', onEntry, { once: true });
+
+    return () => {
+      CinematicOrchestrator.cancel();
+      window.removeEventListener('cinematic-entry', onEntry);
+    };
   }, []);
 
   return (
@@ -141,22 +159,35 @@ export function App() {
             transition: 'opacity 1.6s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         >
-          {/* Layer 1 — background environmental (slowest motion) */}
-          <DotGrid />
-          <ThreeCanvas />
-          {/* Layer 2 — atmospheric depth & blinds (medium, scroll-driven) */}
-          <DepthLayer />
-          {/* Layer 2b — cursor field light source (pointer-driven) */}
-          <CursorField />
+          {/* Atmosphere layers mount only after cinematic-entry fires (loader fade start).
+              Suspense needed because these are now lazy imports.
+              fallback=null: invisible during load — they become visible via the app
+              opacity transition, not by appearing suddenly. */}
+          {atmosphereReady && (
+            <Suspense fallback={null}>
+              {/* Layer 1 — background environmental (slowest motion) */}
+              <DotGrid />
+              <ThreeCanvas />
+              {/* Layer 2 — atmospheric depth & blinds (medium, scroll-driven) */}
+              <DepthLayer />
+              {/* Layer 2b — cursor field light source (pointer-driven) */}
+              <CursorField />
+            </Suspense>
+          )}
           {/* Layer 2c — hero signature identity frame */}
           <HeroSignature />
           {/* Layer 3 — scene content (most restrained) */}
           <HeroScene />
-          <PhilosophyScene />
-          <ServicesScene />
-          <WorkScene />
-          <LogosScene />
-          <CTAScene />
+          {/* Non-hero scenes are lazy chunks — Suspense holds nothing visible
+              (layout is already reserved by the 500vh scroll spacer below).
+              They stream in during the cinematic loader, invisible behind it. */}
+          <Suspense fallback={null}>
+            <PhilosophyScene />
+            <ServicesScene />
+            <WorkScene />
+            <LogosScene />
+            <CTAScene />
+          </Suspense>
           {/* Scroll spacer — room for Lenis to travel through all scenes */}
           <div aria-hidden="true" style={{ height: '500vh', pointerEvents: 'none' }} />
         </div>

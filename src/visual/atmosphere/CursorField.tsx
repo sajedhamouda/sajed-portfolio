@@ -20,6 +20,9 @@ export function CursorField() {
   const innerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // No-op on coarse-pointer (touch) devices — cursor decorations are irrelevant.
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+
     const unsub = PointerEngine.subscribe((state) => {
       if (!innerRef.current) return;
       // Translate the radial gradient center to cursor position.
