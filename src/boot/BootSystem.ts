@@ -1,3 +1,4 @@
+import { CinematicMonitor } from '../core/observability/CinematicMonitor';
 type StatusCallback = (status: string) => void;
 
 class BootSystemClass {
@@ -38,6 +39,7 @@ class BootSystemClass {
       await this.delay(620);
 
       this.bootComplete = true;
+      if (import.meta.env.DEV) CinematicMonitor.setBootComplete(true);
     } catch {
       this.emit('—');
     } finally {

@@ -1,4 +1,5 @@
 export type SceneState = 'inactive' | 'secondary' | 'primary';
+import { CinematicMonitor } from '../observability/CinematicMonitor';
 
 export interface Scene {
   id: string;
@@ -24,6 +25,7 @@ class SceneControllerClass {
 
   register(scene: Scene): void {
     this.scenes.set(scene.id, scene);
+    if (import.meta.env.DEV) CinematicMonitor.setSceneCount(this.scenes.size);
   }
 
   update(scrollProgress: number): void {
@@ -34,8 +36,11 @@ class SceneControllerClass {
       const newState = this.calculateSceneState(scene, scrollProgress);
       const currentState = this.getState(scene.id);
       
-      if (currentState !== newState && scene.onStateChange) {
-        scene.onStateChange(newState);
+      if (currentState !== newState) {
+        if (import.meta.env.DEV) {
+          CinematicMonitor.recordSceneTransition(scene.id, currentState, newState, performance.now());
+        }
+        if (scene.onStateChange) scene.onStateChange(newState);
       }
     });
 
@@ -67,7 +72,11 @@ class SceneControllerClass {
 
   subscribe(listener: () => void): () => void {
     this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
+    if (import.meta.env.DEV) CinematicMonitor.setSceneSubscribers(this.listeners.size);
+    return () => {
+      this.listeners.delete(listener);
+      if (import.meta.env.DEV) CinematicMonitor.setSceneSubscribers(this.listeners.size);
+    };
   }
 
   reset(): void {

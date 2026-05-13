@@ -15,6 +15,7 @@
  */
 
 import { SceneController } from '../scene-engine/SceneController';
+import { CinematicMonitor } from '../observability/CinematicMonitor';
 
 export interface PointerState {
   /** Raw viewport coordinates */
@@ -87,14 +88,19 @@ class PointerEngineClass {
         this._target.y  = e.clientY;
       }
       this._active = true;
+      if (import.meta.env.DEV) CinematicMonitor.setPointerActive(true);
     };
 
-    this._onLeave = () => { this._active = false; };
+    this._onLeave = () => {
+      this._active = false;
+      if (import.meta.env.DEV) CinematicMonitor.setPointerActive(false);
+    };
 
     window.addEventListener('mousemove', this._onMove, { passive: true });
     window.addEventListener('mouseleave', this._onLeave, { passive: true });
 
     this._startRaf();
+    if (import.meta.env.DEV) CinematicMonitor.setPointerEngineMounted(true);
   }
 
   unmount(): void {
@@ -108,11 +114,20 @@ class PointerEngineClass {
     this._onLeave = null;
     this._mounted = false;
     this._lastTime = null;
+    if (import.meta.env.DEV) {
+      CinematicMonitor.setPointerEngineMounted(false);
+      CinematicMonitor.setPointerActive(false);
+      CinematicMonitor.setPointerSubscribers(0);
+    }
   }
 
   subscribe(fn: Subscriber): () => void {
     this._subs.add(fn);
-    return () => this._subs.delete(fn);
+    if (import.meta.env.DEV) CinematicMonitor.setPointerSubscribers(this._subs.size);
+    return () => {
+      this._subs.delete(fn);
+      if (import.meta.env.DEV) CinematicMonitor.setPointerSubscribers(this._subs.size);
+    };
   }
 
   /** Current lerped state snapshot — read by consumers synchronously */

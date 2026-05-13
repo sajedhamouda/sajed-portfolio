@@ -1,5 +1,6 @@
 import Lenis from 'lenis';
 import { SceneController } from '../scene-engine/SceneController';
+import { CinematicMonitor } from '../observability/CinematicMonitor';
 
 class ScrollEngineClass {
   private static instance: ScrollEngineClass;
@@ -54,6 +55,7 @@ class ScrollEngineClass {
     document.addEventListener('visibilitychange', this._onVisibilityChange);
 
     this.isInitialized = true;
+    if (import.meta.env.DEV) CinematicMonitor.setScrollEngineInitialized(true);
   }
 
   private _startRaf(): void {
@@ -62,6 +64,7 @@ class ScrollEngineClass {
         this.lenis.raf(time);
       }
       this._updateSceneProgress();
+      if (import.meta.env.DEV) CinematicMonitor.recordFrame(time);
       this.rafId = requestAnimationFrame(raf);
     };
     this.rafId = requestAnimationFrame(raf);
@@ -75,6 +78,7 @@ class ScrollEngineClass {
 
   start(): void {
     this._running = true;
+    if (import.meta.env.DEV) CinematicMonitor.setScrollEngineRunning(true);
     if (this.lenis && !document.hidden) {
       this.lenis.start();
     }
@@ -101,6 +105,10 @@ class ScrollEngineClass {
     }
     this.isInitialized = false;
     this._running = false;
+    if (import.meta.env.DEV) {
+      CinematicMonitor.setScrollEngineInitialized(false);
+      CinematicMonitor.setScrollEngineRunning(false);
+    }
   }
 }
 

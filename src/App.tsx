@@ -14,6 +14,14 @@ import { CinematicOrchestrator } from './boot/CinematicOrchestrator';
 import './scenes/Hero/HeroScene.css';
 import './styles/scenes.css';
 
+// Dev-only observability — tree-shaken entirely in production builds.
+// Vite replaces import.meta.env.DEV with false and the bundler removes
+// the dead branch, so neither CinematicMonitor nor DebugOverlay reach prod.
+import { CinematicMonitor } from './core/observability/CinematicMonitor';
+import { DebugOverlay } from './core/observability/DebugOverlay';
+import { SceneController } from './core/scene-engine/SceneController';
+import { PointerEngine } from './core/interaction/PointerEngine';
+
 const ASCII_LOGO = `\
 ███████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗     
 ██╔════╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║     
@@ -39,6 +47,21 @@ export function App() {
   const [status, setStatus]               = useState('DA VINCI STUDIO');
 
   useEffect(() => {
+    // Initialize observability in dev — no-op in production (tree-shaken).
+    if (import.meta.env.DEV) {
+      CinematicMonitor.init({
+        getScrollProgress: () => SceneController.getScrollProgress(),
+        getPointerState:   () => {
+          const s = PointerEngine.getState();
+          return { nx: s.nx, ny: s.ny, active: s.active };
+        },
+        getActiveScene: () => {
+          const scenes = ['hero', 'philosophy', 'services', 'work', 'logos', 'cta'];
+          return scenes.find(id => SceneController.getState(id) === 'primary') ?? null;
+        },
+      });
+    }
+
     // Hand full startup authority to the orchestrator.
     // App.tsx provides only React state setters — zero timing or engine logic here.
     CinematicOrchestrator.run({
@@ -138,6 +161,9 @@ export function App() {
           <div aria-hidden="true" style={{ height: '500vh', pointerEvents: 'none' }} />
         </div>
       )}
+
+      {/* Dev-only performance HUD — tree-shaken in production. Toggle: Ctrl+Shift+D */}
+      {import.meta.env.DEV && <DebugOverlay />}
     </>
   );
 }
