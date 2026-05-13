@@ -1,19 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ThreeCanvas } from './visual/three/ThreeCanvas';
 import { DotGrid } from './visual/atmosphere/DotGrid';
 import { DepthLayer } from './visual/atmosphere/DepthLayer';
 import { CursorField } from './visual/atmosphere/CursorField';
 import { HeroSignature } from './visual/signature/HeroSignature';
-import { PointerEngine } from './core/interaction/PointerEngine';
 import { HeroScene } from './scenes/Hero/HeroScene';
 import { PhilosophyScene } from './scenes/Philosophy/PhilosophyScene';
 import { ServicesScene } from './scenes/Services/ServicesScene';
 import { WorkScene } from './scenes/Work/WorkScene';
 import { LogosScene } from './scenes/Logos/LogosScene';
 import { CTAScene } from './scenes/CTA/CTAScene';
-import { initializeCinematicExperience } from './boot/CinematicApp';
-import { BootSystemInstance } from './boot/BootSystem';
-import { ScrollEngine } from './core/scroll/ScrollEngine';
+import { CinematicOrchestrator } from './boot/CinematicOrchestrator';
 import './scenes/Hero/HeroScene.css';
 import './styles/scenes.css';
 
@@ -33,65 +30,31 @@ const ASCII_LOGO = `\
 ╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝    ╚═╝       ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝`;
 
 export function App() {
-  // booted: controls whether the main app is mounted (atmosphere pre-exists)
-  // loaderVisible: controls whether the loader overlay is rendered
-  // loaderOpacity: drives the CSS fade-out of the loader
-  const [booted, setBooted] = useState(false);
+  // Orchestrator-driven UI state.
+  // App.tsx owns ONLY the visual shell — it has no knowledge of timing or engines.
+  const [domReady, setDomReady]           = useState(false);
   const [loaderVisible, setLoaderVisible] = useState(true);
   const [loaderOpacity, setLoaderOpacity] = useState(1);
-  const [appOpacity, setAppOpacity] = useState(0);
-  const [status, setStatus] = useState('DA VINCI STUDIO');
-  const fallbackRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [appOpacity, setAppOpacity]       = useState(0);
+  const [status, setStatus]               = useState('DA VINCI STUDIO');
 
   useEffect(() => {
-    // Wire status updates from BootSystem into React state
-    BootSystemInstance.setStatusCallback(setStatus);
+    // Hand full startup authority to the orchestrator.
+    // App.tsx provides only React state setters — zero timing or engine logic here.
+    CinematicOrchestrator.run({
+      onDomReady:      () => setDomReady(true),
+      onStatusChange:  (s) => setStatus(s),
+      onLoaderFadeOut: () => setLoaderOpacity(0),
+      onAppFadeIn:     () => setAppOpacity(1),
+      onLoaderUnmount: () => setLoaderVisible(false),
+    });
 
-    // Register scenes + init ScrollEngine (stopped)
-    initializeCinematicExperience();
-
-    // Mount pointer engine — one global listener + one RAF loop
-    PointerEngine.mount();
-
-    // Mount the app DOM immediately so atmosphere (DotGrid, Three) pre-exists behind loader
-    setBooted(true);
-
-    function triggerEntry() {
-      // Begin ScrollEngine so scenes can receive progress while fading in
-      ScrollEngine.start();
-      // Fade out loader over 1.1s, fade in app simultaneously
-      setLoaderOpacity(0);
-      setAppOpacity(1);
-      // Signal to scene components that the experience is now visible.
-      // Scenes that need entry-relative timing listen for this event.
-      window.dispatchEvent(new CustomEvent('cinematic-entry'));
-      // Unmount loader DOM after fade completes (200ms buffer after 1.1s transition)
-      setTimeout(() => setLoaderVisible(false), 1300);
-    }
-
-    // Fallback — loader ALWAYS exits after 9s
-    fallbackRef.current = setTimeout(triggerEntry, 9000);
-
-    // Run the real boot sequence
-    BootSystemInstance.boot()
-      .then(() => {
-        if (fallbackRef.current) clearTimeout(fallbackRef.current);
-        triggerEntry();
-      })
-      .catch(() => {
-        if (fallbackRef.current) clearTimeout(fallbackRef.current);
-        triggerEntry();
-      });
-
-    return () => {
-      if (fallbackRef.current) clearTimeout(fallbackRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => CinematicOrchestrator.cancel();
   }, []);
 
   return (
     <>
-      {/* ── Cinematic loader overlay — fades out on entry ── */}
+      {/* ── Cinematic loader overlay — fades out on orchestrator entry signal ── */}
       {loaderVisible && (
         <div
           aria-hidden={!loaderVisible}
@@ -110,7 +73,6 @@ export function App() {
             pointerEvents: loaderOpacity < 0.1 ? 'none' : undefined,
           }}
         >
-          {/* ASCII art */}
           <pre
             style={{
               display: 'block',
@@ -147,8 +109,8 @@ export function App() {
         </div>
       )}
 
-      {/* ── Main app — pre-mounted behind loader, fades in on entry ── */}
-      {booted && (
+      {/* ── Main app — pre-mounted by orchestrator, fades in on entry signal ── */}
+      {domReady && (
         <div
           style={{
             position: 'relative',
