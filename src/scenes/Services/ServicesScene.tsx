@@ -57,8 +57,6 @@ const SERVICES: Service[] = [
     subtitle: 'GSAP · Framer · CSS',
     body: 'Purposeful animation that guides attention. No decoration — only signal.',
     featured: true,
-    stat: '8s',
-    statLabel: 'Avg. page load < 1s',
   },
 ];
 

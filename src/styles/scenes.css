@@ -249,7 +249,6 @@
   color: var(--c-cyan);
   font-size: 0.9em;
   letter-spacing: 0.03em;
-  text-shadow: 0 0 30px var(--c-cyan-glow);
 }
 
 .philo-body {
@@ -873,8 +872,12 @@
   .hero-eyeline {
     margin-bottom: 16px;
   }
+  /* Condense descriptor instead of hiding — it's the only prose context on the hero */
   .hero-descriptor {
-    display: none;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    max-width: 360px;
+    margin-top: 8px;
   }
 }
 
@@ -1711,17 +1714,12 @@
   50%       { box-shadow: 0 0 12px rgba(52, 211, 153, 0.08); }
 }
 
-/* Philo em — slow glow breath */
-.philo-em {
-  animation: em-breathe 6s ease-in-out infinite;
-}
-
+/* CTA em — slow glow breath: "to be seen." is the positive climax, glow is earned here */
 @keyframes em-breathe {
   0%, 100% { text-shadow: 0 0 20px rgba(0, 240, 255, 0.15); }
   50%       { text-shadow: 0 0 40px rgba(0, 240, 255, 0.28); }
 }
 
-/* CTA em — matching breath, slower */
 .cta-em {
   animation: em-breathe 8s ease-in-out infinite;
 }
@@ -1817,7 +1815,6 @@
   .trust-tool--t1,
   .trust-tool--t2,
   .hero-availability,
-  .philo-em,
   .cta-em,
   .hero-sig-frame,
   .hero-sig-frame::before,

@@ -30,13 +30,13 @@ class BootSystemClass {
       await this.delay(1100);
 
       this.emit('COMPOSING EXPERIENCE');
-      await this.delay(800);
+      await this.delay(480);
 
       this.emit('CALIBRATING ATMOSPHERE');
-      await this.delay(860);
+      await this.delay(480);
 
       this.emit('ENTERING');
-      await this.delay(620);
+      await this.delay(320);
 
       this.bootComplete = true;
       if (import.meta.env.DEV) CinematicMonitor.setBootComplete(true);

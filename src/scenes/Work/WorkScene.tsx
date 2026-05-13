@@ -128,8 +128,8 @@ function WorkContent({ state }: { state: SceneState }) {
       </div>
 
       <div className="work-cta-row">
-        <span className="work-cta-label">3 of 12 projects</span>
-        <a href="#" className="work-cta-link">View full portfolio ↗</a>
+        <span className="work-cta-label">Selected projects</span>
+        <a href="mailto:sajed@davincistudio.ae" className="work-cta-link">Request full portfolio ↗</a>
       </div>
     </div>
   );

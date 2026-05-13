@@ -84,7 +84,7 @@ function CTAContent({ state }: { state: SceneState }) {
       </h2>
 
       <p className="cta-sub">
-        I take a limited number of new clients each quarter.
+        I take a limited number of new clients at a time.
         If your project deserves attention, let's talk now.
       </p>
 
@@ -113,7 +113,7 @@ function CTAContent({ state }: { state: SceneState }) {
       {/* Availability note */}
       <div className="cta-availability">
         <span className="avail-dot" />
-        <span className="avail-label">Currently accepting projects for Q3 2025</span>
+        <span className="avail-label">Currently accepting new projects</span>
       </div>
 
       {/* Footer micro line */}

@@ -23,14 +23,15 @@ function HeroContent({ state }: { state: SceneState }) {
   const isSecondary = state === 'secondary';
   const isInactive  = state === 'inactive';
 
-  // Entry-relative reveal: hero wakes up 480ms after the cinematic-entry event
-  // fires from App.tsx (i.e., 480ms after the loader begins to fade and the
-  // app becomes visible). This ensures the atmosphere (DotGrid, depth layers)
-  // has a perceivable head-start before the hero typography resolves.
+  // Entry-relative reveal: hero wakes up 200ms after the cinematic-entry event
+  // fires (i.e., 200ms after the loader begins to fade and the app becomes
+  // visible). A short head-start lets the atmosphere (DotGrid, depth layers)
+  // begin resolving before the hero typography fades in — but not so long
+  // that the user is staring at an empty black screen.
   const [entered, setEntered] = useState(false);
   useEffect(() => {
     let t: ReturnType<typeof setTimeout>;
-    const onEntry = () => { t = setTimeout(() => setEntered(true), 480); };
+    const onEntry = () => { t = setTimeout(() => setEntered(true), 200); };
     window.addEventListener('cinematic-entry', onEntry, { once: true });
     return () => {
       window.removeEventListener('cinematic-entry', onEntry);
