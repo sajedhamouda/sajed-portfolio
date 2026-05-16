@@ -5,6 +5,7 @@ import { usePointer } from '../../core/interaction/usePointer';
 import { PointerEngine } from '../../core/interaction/PointerEngine';
 import type { SceneState } from '../../core/scene-engine/SceneController';
 import { SCENE_REGISTRY } from '../../core/scene-engine/SceneRegistry';
+import { trackEvent } from '../../core/analytics/trackEvent';
 
 export function CTAScene() {
   return (
@@ -95,6 +96,7 @@ function CTAContent({ state }: { state: SceneState }) {
           href="mailto:sajed@davincistudio.ae"
           className="cta-btn-primary"
           style={{ willChange: 'transform' }}
+          onClick={() => trackEvent('cta_click', { label: 'email' })}
         >
           Start a Project
         </a>
@@ -105,6 +107,7 @@ function CTAContent({ state }: { state: SceneState }) {
           target="_blank"
           rel="noopener noreferrer"
           style={{ willChange: 'transform' }}
+          onClick={() => trackEvent('whatsapp_click')}
         >
           WhatsApp me
         </a>
@@ -122,9 +125,9 @@ function CTAContent({ state }: { state: SceneState }) {
         <span className="cta-footer-sep">·</span>
         <span>Abu Dhabi, UAE</span>
         <span className="cta-footer-sep">·</span>
-        <a href="/case-study">Case Study</a>
+        <a href="/case-study" onClick={() => trackEvent('case_study_open')}>Case Study</a>
         <span className="cta-footer-sep">·</span>
-        <a href="https://linkedin.com/in/sajed" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://linkedin.com/in/m-sajed-hamouda" target="_blank" rel="noopener noreferrer" onClick={() => trackEvent('linkedin_click')}>LinkedIn</a>
       </div>
     </div>
   );

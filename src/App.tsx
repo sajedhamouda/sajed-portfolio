@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { HeroSignature } from './visual/signature/HeroSignature';
 import { HeroScene } from './scenes/Hero/HeroScene';
 import { CinematicOrchestrator } from './boot/CinematicOrchestrator';
+import { ErrorMonitor } from './core/monitoring/ErrorMonitor';
 import './scenes/Hero/HeroScene.css';
 import './styles/scenes.css';
 
@@ -72,6 +73,9 @@ export function App() {
       });
     }
 
+    // Mount error monitor — captures unhandled errors + promise rejections in production.
+    ErrorMonitor.mount();
+
     // Hand full startup authority to the orchestrator.
     // App.tsx provides only React state setters — zero timing or engine logic here.
     CinematicOrchestrator.run({
@@ -89,6 +93,7 @@ export function App() {
 
     return () => {
       CinematicOrchestrator.cancel();
+      ErrorMonitor.unmount();
       window.removeEventListener('cinematic-entry', onEntry);
     };
   }, []);

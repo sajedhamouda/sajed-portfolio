@@ -1,29 +1,108 @@
 ---
 import '../styles/global.css';
+import Analytics from '../components/Analytics.astro';
+
+interface Props {
+  title?:       string;
+  description?: string;
+  ogImage?:     string;
+  canonical?:   string;
+  noindex?:     boolean;
+}
+
+const SITE_URL = 'https://davincistudio.ae';
+
+const {
+  title       = 'Sajed Hamouda — Da Vinci Studio',
+  description = 'Wix Certified Web Designer & UI/UX Specialist based in Abu Dhabi, UAE. Founder of Da Vinci Studio — premium digital experiences for luxury brands, clinics, and specialist firms.',
+  ogImage     = '/og/home.svg',
+  canonical   = SITE_URL,
+  noindex     = false,
+} = Astro.props;
+
+const fullOgImage = ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage}`;
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Sajed Hamouda — Wix Certified Web Designer & UI/UX Specialist. Founder of Da Vinci Studio, based in Abu Dhabi, UAE." />
-    <meta name="author" content="Sajed Hamouda" />
-    <meta name="robots" content="index, follow" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <!-- Primary meta -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author"      content="Sajed Hamouda" />
+    <meta name="robots"      content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+    <link rel="canonical"    href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:site_name"   content="Da Vinci Studio" />
+    <meta property="og:url"         content={canonical} />
+    <meta property="og:title"       content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image"       content={fullOgImage} />
+    <meta property="og:image:width"  content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt"   content={title} />
+    <meta property="og:locale"      content="en_AE" />
+
+    <!-- Twitter / X card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image"       content={fullOgImage} />
+    <meta name="twitter:image:alt"   content={title} />
+
+    <!-- Favicon -->
+    <link rel="icon"             type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon"             type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.ico" />
+
+    <!-- Fonts — non-blocking (media=print swap trick) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Load font CSS non-blocking: media=print swap trick keeps it render-safe -->
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap"
       media="print"
       onload="this.media='all'"
     />
-    <!-- Fallback for no-JS — same sheet, standard blocking -->
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
     </noscript>
-    <title>Sajed Hamouda — Da Vinci Studio</title>
+
+    <!-- Analytics (privacy-first, no-op when PUBLIC_UMAMI_URL not set) -->
+    <Analytics />
+
+    <!-- Structured data — Person + WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Person",
+          "name": "Sajed Hamouda",
+          "jobTitle": "Web Designer & UI/UX Specialist",
+          "url": "https://davincistudio.ae",
+          "email": "sajed@davincistudio.ae",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Abu Dhabi",
+            "addressCountry": "AE"
+          },
+          "sameAs": [
+            "https://www.linkedin.com/in/m-sajed-hamouda"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "name": "Da Vinci Studio",
+          "url": "https://davincistudio.ae"
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <slot />

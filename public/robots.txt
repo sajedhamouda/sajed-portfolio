@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /hero-demo
+Disallow: /index-new
+
+Sitemap: https://davincistudio.ae/sitemap-index.xml

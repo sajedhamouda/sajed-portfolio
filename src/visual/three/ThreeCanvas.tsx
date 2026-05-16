@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { ErrorMonitor } from '../../core/monitoring/ErrorMonitor';
 
 export function ThreeCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -19,12 +20,18 @@ export function ThreeCanvas() {
     const h = window.innerHeight;
     const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: 'low-power',
-    });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: 'low-power',
+      });
+    } catch (err) {
+      ErrorMonitor.report('webgl_failed', err instanceof Error ? err.message : 'WebGL init failed');
+      return; // graceful degradation — canvas stays hidden
+    }
     renderer.setSize(w, h);
     // Cap pixel ratio at 1.5 — retina has diminishing returns at 30% opacity
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));

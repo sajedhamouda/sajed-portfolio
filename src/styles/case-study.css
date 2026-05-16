@@ -697,8 +697,47 @@
 .cs-footer-link:hover { opacity: 1; }
 
 /* --------------------------------------------------------------------------
-   Accessibility / reduced motion
+   Accessibility
    -------------------------------------------------------------------------- */
+
+/* Focus visibility — keyboard navigation */
+*:focus {
+  outline: none;
+}
+*:focus-visible {
+  outline: 1px solid rgba(0, 240, 255, 0.6);
+  outline-offset: 3px;
+}
+
+/* Ensure nav links and footer links have visible focus */
+.cs-nav-back:focus-visible,
+.cs-footer-link:focus-visible {
+  outline: 1px solid var(--c-cyan);
+  outline-offset: 3px;
+}
+
+/* Skip-to-main-content link (visually hidden until focused) */
+.cs-skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  background: var(--c-bg);
+  color: var(--c-cyan);
+  border: 1px solid var(--c-cyan);
+  padding: 8px 16px;
+  font-family: var(--f-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  z-index: 1000;
+  transition: top 0.2s var(--ease-cinema);
+}
+.cs-skip-link:focus {
+  top: 16px;
+}
+
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }

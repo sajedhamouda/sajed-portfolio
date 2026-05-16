@@ -1,0 +1,30 @@
+---
+/**
+ * Analytics — privacy-first Umami integration
+ *
+ * Usage: add <Analytics /> to any layout's <head>.
+ *
+ * Configuration (set in production environment or .env):
+ *   PUBLIC_UMAMI_URL      — your Umami instance URL, e.g. https://umami.davincistudio.ae
+ *   PUBLIC_UMAMI_SITE_ID  — the website ID from your Umami dashboard
+ *
+ * If either variable is absent (dev / not yet configured), no script is emitted.
+ * Zero performance impact when unconfigured.
+ *
+ * Event tracking:
+ *   Scene depth is tracked via window.umami.track() calls in the cinematic engine.
+ *   See src/core/analytics/trackEvent.ts for the helper.
+ */
+
+const umamiUrl    = import.meta.env.PUBLIC_UMAMI_URL    ?? '';
+const umamiSiteId = import.meta.env.PUBLIC_UMAMI_SITE_ID ?? '';
+const enabled     = umamiUrl !== '' && umamiSiteId !== '';
+---
+
+{enabled && (
+  <script
+    defer
+    src={`${umamiUrl}/script.js`}
+    data-website-id={umamiSiteId}
+  ></script>
+)}

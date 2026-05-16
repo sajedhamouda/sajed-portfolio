@@ -1,5 +1,6 @@
 export type SceneState = 'inactive' | 'secondary' | 'primary';
 import { CinematicMonitor } from '../observability/CinematicMonitor';
+import { trackSceneReached } from '../analytics/trackEvent';
 
 export interface Scene {
   id: string;
@@ -41,6 +42,8 @@ class SceneControllerClass {
           CinematicMonitor.recordSceneTransition(scene.id, currentState, newState, performance.now());
         }
         if (scene.onStateChange) scene.onStateChange(newState);
+        // Track first-time scene reach for analytics depth funnel
+        if (newState === 'primary') trackSceneReached(scene.id);
       }
     });
 
