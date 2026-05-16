@@ -133,3 +133,31 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           command: pages deploy dist --project-name=davincistudio --branch=main
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # 4. POST-DEPLOY VALIDATION (production only)
+  # Runs the automated validation script against the live URL.
+  # Waits 30s for CF cache to warm before probing.
+  # ──────────────────────────────────────────────────────────────────────────
+  validate-production:
+    name: Validate Production
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/astro-dark')
+
+    steps:
+      - name: Checkout (for validation script)
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Wait for deployment to propagate
+        run: sleep 30
+
+      - name: Run production validation
+        run: node scripts/validate-production.mjs https://davincistudio.ae
+        continue-on-error: true
