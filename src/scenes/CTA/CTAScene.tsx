@@ -118,9 +118,11 @@ function CTAContent({ state }: { state: SceneState }) {
 
       {/* Footer micro line */}
       <div className="cta-footer">
-        <span>© 2025 Da Vinci Studio</span>
+        <span>© 2026 Da Vinci Studio</span>
         <span className="cta-footer-sep">·</span>
         <span>Abu Dhabi, UAE</span>
+        <span className="cta-footer-sep">·</span>
+        <a href="/case-study">Case Study</a>
         <span className="cta-footer-sep">·</span>
         <a href="https://linkedin.com/in/sajed" target="_blank" rel="noopener noreferrer">LinkedIn</a>
       </div>

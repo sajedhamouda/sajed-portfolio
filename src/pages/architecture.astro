@@ -1,0 +1,1073 @@
+---
+import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
+---
+
+<CaseStudyLayout
+  title="Architecture Reference — Da Vinci Studio Cinematic System"
+  description="Complete engineering reference for the Da Vinci Studio cinematic portfolio system. Engine contracts, ownership model, scroll architecture, pointer engine, observability layer, and performance budget."
+>
+
+  <!-- Navigation -->
+  <nav class="cs-nav">
+    <a href="/case-study" class="cs-nav-back">← Back to case study</a>
+    <span class="cs-nav-title">Architecture Reference</span>
+    <span class="cs-nav-tag">rev. 13 · 2026</span>
+  </nav>
+
+  <main class="cs-page">
+
+    <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+    <header class="cs-hero">
+      <div class="cs-hero-eyeline">
+        <span class="cs-eyeline-dash"></span>
+        <span class="cs-eyeline-text">Da Vinci Studio · Engineering Reference</span>
+      </div>
+
+      <h1 class="cs-hero-title">
+        System<br />
+        <span>Architecture</span>
+      </h1>
+
+      <p class="cs-hero-sub">
+        Complete engineering reference for the cinematic portfolio system.
+        Engine contracts, ownership rules, scroll architecture, interaction
+        pipeline, observability design, and production constraints. Written
+        for engineers and studios who want the full picture.
+      </p>
+
+      <div class="cs-hero-meta">
+        <div class="cs-meta-item">
+          <span class="cs-meta-label">Revision</span>
+          <span class="cs-meta-value">13 (Phase 13 — productisation)</span>
+        </div>
+        <div class="cs-meta-item">
+          <span class="cs-meta-label">Stack</span>
+          <span class="cs-meta-value">Astro 6 · React 19 · Vite 6</span>
+        </div>
+        <div class="cs-meta-item">
+          <span class="cs-meta-label">Runtime animation</span>
+          <span class="cs-meta-value">CSS transitions + requestAnimationFrame</span>
+        </div>
+        <div class="cs-meta-item">
+          <span class="cs-meta-label">External animation</span>
+          <span class="cs-meta-value">None (no GSAP, no Framer Motion)</span>
+        </div>
+        <div class="cs-meta-item">
+          <span class="cs-meta-label">Scroll</span>
+          <span class="cs-meta-value">Lenis v1 (inertial smoothing only)</span>
+        </div>
+        <div class="cs-meta-item">
+          <span class="cs-meta-label">3D</span>
+          <span class="cs-meta-value">Three.js r169 (bundled, low-power)</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── §1 · Core Design Principle ────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§1</span>
+        <span class="cs-section-label">Core Design Principle</span>
+      </div>
+
+      <h2 class="cs-h2">Single ownership</h2>
+
+      <p class="cs-p">
+        Every running loop, every event listener, and every RAF tick in the
+        system has exactly one owner. No component adds its own scroll
+        listener. No component starts its own RAF loop independently.
+        The ownership model is the architecture.
+      </p>
+
+      <p class="cs-p">
+        This rule was not imposed at the start — it emerged as the system
+        grew and the cost of ambiguous ownership became visible. After Phase 9
+        (lifecycle hardening), it was formalised as a constraint: any future
+        change that requires introducing a new scroll listener at the component
+        level is a design error, not an implementation choice.
+      </p>
+
+      <div class="cs-callout">
+        <p>
+          <strong>Ownership rule:</strong> If two components could reasonably
+          both own a given resource, that resource belongs to neither — it
+          belongs to the engine layer. Components subscribe; they do not create.
+        </p>
+      </div>
+    </section>
+
+    <!-- ── §2 · Directory Structure ──────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§2</span>
+        <span class="cs-section-label">Directory Structure</span>
+      </div>
+
+      <h2 class="cs-h2">Source map</h2>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">src/ tree — annotated</div>
+        <pre>
+src/
+├── <span class="hl">boot/</span>                         ← startup sequencing (no React, no DOM)
+│   ├── BootSystem.ts             ← cinematic loader, status sequence, 2.38s boot
+│   ├── CinematicOrchestrator.ts  ← single startup authority; enforces init order
+│   └── CinematicApp.tsx          ← legacy; scene registration now in orchestrator
+│
+├── <span class="hl">core/</span>                         ← runtime engines (pure TypeScript singletons)
+│   ├── scroll/
+│   │   └── ScrollEngine.ts       ← Lenis wrapper; RAF loop; visibilitychange guard
+│   ├── interaction/
+│   │   ├── PointerEngine.ts      ← global mousemove → LERP → subscribers
+│   │   └── usePointer.ts         ← React hook: subscribe + cleanup
+│   ├── scene-engine/
+│   │   ├── SceneController.ts    ← scroll→state machine; 6 scene registrations
+│   │   ├── SceneRegistry.ts      ← scroll range definitions (start/end/soft boundary)
+│   │   ├── SceneWrapper.tsx      ← HOC; mounts scene, passes state down
+│   │   ├── useScene.ts           ← React hook: SceneState subscription
+│   │   └── useSceneProgress.ts   ← React hook: normalised 0–1 progress
+│   └── observability/
+│       ├── CinematicMonitor.ts   ← DEV-only: FPS, spike log, health flags
+│       └── DebugOverlay.tsx      ← DEV-only: Ctrl+Shift+D HUD
+│
+├── <span class="hl">scenes/</span>                       ← content layers (React, scroll-driven)
+│   ├── Hero/
+│   │   ├── HeroScene.tsx         ← entry hero; pointer depth; cinematic-entry gate
+│   │   └── HeroScene.css
+│   ├── Philosophy/
+│   │   └── PhilosophyScene.tsx
+│   ├── Services/
+│   │   └── ServicesScene.tsx     ← bento grid; per-card reveal stagger
+│   ├── Work/
+│   │   └── WorkScene.tsx         ← project list; hover row dimming
+│   ├── Logos/
+│   │   └── LogosScene.tsx        ← trust tools; stagger entry on scroll
+│   └── CTA/
+│       └── CTAScene.tsx          ← pointer button lift; availability badge
+│
+├── <span class="hl">visual/</span>                       ← atmosphere layers (non-semantic, aria-hidden)
+│   ├── three/
+│   │   └── ThreeCanvas.tsx       ← WebGL mandala sphere; low-power; reduced-motion skip
+│   ├── atmosphere/
+│   │   ├── DotGrid.tsx           ← Canvas dot field; static draw; CSS drift
+│   │   ├── DepthLayer.tsx        ← scroll-driven vignette + perspective blind
+│   │   └── CursorField.tsx       ← radial glow at cursor; coarse-pointer no-op
+│   └── signature/
+│       └── HeroSignature.tsx     ← scanline, focus zone, corner brackets
+│
+├── <span class="hl">styles/</span>
+│   ├── global.css                ← resets, :root tokens, scrollbar
+│   ├── scenes.css                ← all scene CSS (1948 lines); cinematic easing token
+│   └── case-study.css            ← document CSS for /case-study and /architecture
+│
+├── <span class="hl">layouts/</span>
+│   ├── Layout.astro              ← main app shell; mounts React island
+│   └── CaseStudyLayout.astro     ← document shell for prose pages
+│
+├── <span class="hl">pages/</span>
+│   ├── index.astro               ← production entry (cinematic experience)
+│   ├── case-study.astro          ← design+engineering case study
+│   └── architecture.astro        ← this document
+│
+└── <span class="hl">data/</span>
+    └── projects.ts               ← Project[] type + array
+        </pre>
+      </div>
+    </section>
+
+    <!-- ── §3 · Startup Pipeline ──────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§3</span>
+        <span class="cs-section-label">Startup Pipeline</span>
+      </div>
+
+      <h2 class="cs-h2">CinematicOrchestrator</h2>
+
+      <p class="cs-p">
+        Before Phase 6 (CinematicOrchestrator introduction), each engine
+        initialised itself when its component mounted. The ordering was
+        implicit and depended on React's render order — which is not
+        guaranteed. The result was a boot sequence that worked most of the
+        time and failed silently the rest.
+      </p>
+
+      <p class="cs-p">
+        CinematicOrchestrator replaced this with a single authority class
+        that enforces strict ordering. App.tsx now has zero engine knowledge —
+        its useEffect is a single <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">CinematicOrchestrator.run(callbacks)</code>
+        call.
+      </p>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">Startup sequence — deterministic ordering</div>
+        <pre>
+<span class="hl">CinematicOrchestrator.run(callbacks)</span>    ← called once from App.tsx useEffect
+    │
+    ├─ 1. register scenes ────────────────→ SceneController.register() × 6
+    │                                        (hero, philosophy, services,
+    │                                         work, logos, cta)
+    │
+    ├─ 2. initialize scroll ──────────────→ <span class="hl">ScrollEngine.initialize()</span>
+    │      try/catch — failure non-fatal       Lenis created, RAF attached
+    │      9s fallback timer still runs        Lenis STOPPED (not started yet)
+    │
+    ├─ 3. mount pointer ──────────────────→ <span class="hl">PointerEngine.mount()</span>
+    │      try/catch — failure non-fatal       mousemove (passive), RAF started
+    │      coarse-pointer check on mount       skips entirely if touch device
+    │
+    ├─ 4. callbacks.setDomReady(true) ────→ React re-render: app DOM mounts
+    │                                        (hidden behind loader overlay)
+    │
+    ├─ 5. BootSystem.boot() ─────────────→ <span class="hl-v">status sequence (2.38s)</span>
+    │         DA VINCI STUDIO      1.1s
+    │         INITIALISING         1.58s
+    │         LOADING ASSETS       2.06s
+    │         ENTERING             2.70s  ← fires _triggerEntry()
+    │
+    └─ 6. _triggerEntry()
+              │
+              ├─ ScrollEngine.start()    ← Lenis begins running
+              ├─ callbacks.setAppReady() ← loader fade-out begins
+              └─ dispatchEvent('cinematic-entry')
+                      │
+                      ├─ HeroScene: 200ms delay → setEntered(true) → text reveal
+                      └─ App.tsx: atmosphereReady gate opens → ThreeCanvas mounts
+        </pre>
+      </div>
+
+      <div class="cs-callout">
+        <p>
+          <strong>Fallback timer:</strong> A 9-second
+          <code style="font-family:var(--f-mono);font-size:0.85em">setTimeout</code>
+          in CinematicOrchestrator calls <code style="font-family:var(--f-mono);font-size:0.85em">_triggerEntry()</code>
+          unconditionally. If BootSystem fails for any reason, the app always
+          becomes visible at 9 seconds. The fallback emits a
+          <code style="font-family:var(--f-mono);font-size:0.85em">console.warn</code>
+          — the only non-dev log retained in production, because it signals
+          a genuine timing anomaly.
+        </p>
+      </div>
+    </section>
+
+    <!-- ── §4 · Scene Engine ──────────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§4</span>
+        <span class="cs-section-label">Scene Engine</span>
+      </div>
+
+      <h2 class="cs-h2">SceneController</h2>
+
+      <p class="cs-p">
+        SceneController is a TypeScript singleton that maps normalised scroll
+        progress (0–1) to scene states for all six registered scenes. It has
+        no React dependency — it is a pure state machine that React components
+        subscribe to.
+      </p>
+
+      <h3 class="cs-h3">Scene states</h3>
+
+      <div class="cs-principles">
+        <div class="cs-principle">
+          <span class="cs-principle-num">STATE</span>
+          <div class="cs-principle-title">inactive</div>
+          <p class="cs-principle-body">
+            Scroll progress is more than 5% outside the scene's range.
+            Scene is <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">opacity:0</code>,
+            <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">blur:8–10px</code>,
+            translated off-screen. Not composited.
+          </p>
+        </div>
+        <div class="cs-principle">
+          <span class="cs-principle-num">STATE</span>
+          <div class="cs-principle-title">secondary</div>
+          <p class="cs-principle-body">
+            Scroll progress is within the soft 5% boundary around the scene's
+            range. Scene is partially visible (opacity 0.25–0.30), slightly
+            blurred (2–4px), partially translated. Creates cross-dissolve effect.
+          </p>
+        </div>
+        <div class="cs-principle">
+          <span class="cs-principle-num">STATE</span>
+          <div class="cs-principle-title">primary</div>
+          <p class="cs-principle-body">
+            Scroll progress is within the scene's exact range [start, end].
+            Scene is fully visible (opacity 1), unblurred (0px),
+            at rest position. Full pointer interaction enabled.
+          </p>
+        </div>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top:40px">Scene scroll ranges</h3>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">SCENE_REGISTRY — scroll ranges (normalised 0–1)</div>
+        <pre>
+Scene         start    end     range     notes
+────────────  ───────  ──────  ────────  ──────────────────────────────────────
+<span class="hl">hero</span>          0.00     0.15    0.15      first scene; gated by cinematic-entry
+<span class="hl-v">philosophy</span>    0.12     0.35    0.23      overlaps hero — soft transition begins early
+<span class="hl">services</span>      0.32     0.55    0.23      bento grid; per-card stagger on first primary
+<span class="hl-v">work</span>          0.52     0.78    0.26      longest range; table hover interaction
+<span class="hl">logos</span>         0.75     0.90    0.15      trust layer; stagger on entry
+<span class="hl-v">cta</span>           0.88     1.00    0.12      final scene; pointer button lift
+        </pre>
+      </div>
+
+      <div class="cs-callout violet">
+        <p>
+          <strong>Overlap is intentional:</strong> Philosophy starts at 0.12
+          while Hero ends at 0.15. During 0.10–0.17 both scenes are in
+          <code style="font-family:var(--f-mono);font-size:0.85em">secondary</code>
+          state simultaneously. This produces a cross-dissolve rather than a
+          cut — no frame is empty, no scene appears before its predecessor
+          has begun fading.
+        </p>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top:40px">React integration</h3>
+
+      <p class="cs-p">
+        SceneController notifies subscribers only on state changes
+        (<code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">inactive → secondary</code>,
+        <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">secondary → primary</code>,
+        etc.) — not on every scroll frame. React re-renders happen at scene
+        boundaries only. The pointer effects and translateY values derived
+        from scroll progress are applied via direct DOM style mutation on refs,
+        not via setState.
+      </p>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">State notification model</div>
+        <pre>
+ScrollEngine RAF (~60fps)
+    └→ SceneController.update(progress)     ← called every frame
+           │
+           for each scene: calculateState(scene, progress)
+           │
+           if (newState !== scene.prevState):   ← state changed
+               scene.onStateChange(newState)    ← SceneWrapper setState()  → React re-render
+               scene.prevState = newState
+           │
+           always:
+               SceneController.frameListeners   ← notified every frame
+               (DepthLayer uses this for parallax)
+        </pre>
+      </div>
+    </section>
+
+    <!-- ── §5 · Scroll Engine ─────────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§5</span>
+        <span class="cs-section-label">Scroll Engine</span>
+      </div>
+
+      <h2 class="cs-h2">ScrollEngine</h2>
+
+      <p class="cs-p">
+        ScrollEngine wraps Lenis v1 with lifecycle management, resilience
+        additions, and a clean contract for the rest of the system.
+        Lenis is not imported anywhere else — all scroll interaction goes
+        through ScrollEngine.
+      </p>
+
+      <h3 class="cs-h3">Configuration</h3>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">Lenis configuration</div>
+        <pre>
+new Lenis(&#123;
+  duration:  1.4,           ← inertial duration; feels substantial without fighting user
+  easing:    t =&gt; 1 - Math.pow(1 - t, 3),   ← cubic ease-out; matches visual weight
+  infinite:  false,         ← finite scroll — no wrapping
+  direction: 'vertical',
+&#125;)
+        </pre>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top:40px">Resilience additions</h3>
+
+      <div class="cs-principles">
+        <div class="cs-principle">
+          <span class="cs-principle-num">GUARD</span>
+          <div class="cs-principle-title">visibilitychange handler</div>
+          <p class="cs-principle-body">
+            When the tab is hidden, <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">lenis.stop()</code>
+            is called. When it returns, <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">lenis.start()</code>
+            resumes. Without this, the browser's RAF suspension during hide
+            creates a large time gap — Lenis advances scroll position in
+            a single jump on resume.
+          </p>
+        </div>
+        <div class="cs-principle">
+          <span class="cs-principle-num">GUARD</span>
+          <div class="cs-principle-title">document.hidden check on start()</div>
+          <p class="cs-principle-body">
+            <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">ScrollEngine.start()</code>
+            checks <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">document.hidden</code>
+            before calling <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">lenis.start()</code>.
+            If the tab is hidden at boot time (background tab open),
+            Lenis is not started — the visibilitychange handler starts
+            it when the tab becomes visible.
+          </p>
+        </div>
+        <div class="cs-principle">
+          <span class="cs-principle-num">GUARD</span>
+          <div class="cs-principle-title">try/catch initialisation</div>
+          <p class="cs-principle-body">
+            ScrollEngine.initialize() is wrapped in a try/catch inside
+            CinematicOrchestrator. A Lenis failure is non-fatal — the
+            9-second fallback timer fires, the app becomes visible with
+            native scroll only.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── §6 · Pointer Engine ────────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§6</span>
+        <span class="cs-section-label">Pointer Engine</span>
+      </div>
+
+      <h2 class="cs-h2">PointerEngine</h2>
+
+      <p class="cs-p">
+        A single global <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">mousemove</code>
+        listener feeds raw coordinates into a delta-time-normalised LERP
+        loop. Subscribers receive a smoothed pointer snapshot per frame.
+        Zero per-element listeners. Zero React re-renders from pointer movement.
+      </p>
+
+      <h3 class="cs-h3">LERP specification</h3>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">Delta-time normalised LERP</div>
+        <pre>
+<span class="dim">// LERP_60 = 0.055 — produces 90% decay in ~40 frames at 60fps = ~667ms</span>
+<span class="dim">// dt = time since last RAF tick, clamped to 100ms (prevents tab-resume jumps)</span>
+
+<span class="hl">factor = 1 - Math.pow(1 - LERP_60, dt / 16.667)</span>
+
+current.x += (raw.x - current.x) * factor
+current.y += (raw.y - current.y) * factor
+
+<span class="dim">// At 30fps: factor ≈ 0.10 — same wall-clock convergence rate as 60fps</span>
+<span class="dim">// At 120fps: factor ≈ 0.028 — same wall-clock convergence rate as 60fps</span>
+<span class="dim">// Without dt-normalisation: at 120fps motion would be twice as fast</span>
+        </pre>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top:40px">Output values</h3>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">PointerState shape</div>
+        <pre>
+interface PointerState &#123;
+  <span class="hl">x</span>:  number;   ← smoothed absolute clientX (pixels)
+  <span class="hl">y</span>:  number;   ← smoothed absolute clientY (pixels)
+  <span class="hl">cx</span>: number;   ← normalised -1→+1 (0 = viewport center X)
+  <span class="hl">cy</span>: number;   ← normalised -1→+1 (0 = viewport center Y)
+&#125;
+        </pre>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top:40px">Scene intensity</h3>
+
+      <p class="cs-p">
+        Scenes read <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">PointerEngine.sceneIntensity(sceneId)</code>
+        to scale their pointer effects. This prevents inactive scenes from
+        reacting to the pointer — a scene in the background should not
+        move because the user is hovering over a visible scene.
+      </p>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">sceneIntensity() return values</div>
+        <pre>
+state = 'primary'    → <span class="hl">1.0</span>   ← full effect
+state = 'secondary'  → <span class="hl-v">0.3</span>   ← reduced (scene is transitioning out)
+state = 'inactive'   → <span class="dim">0.0</span>   ← no effect (early return, no transform applied)
+        </pre>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top:40px">Guards</h3>
+
+      <div class="cs-before-after">
+        <div class="cs-ba-col before">
+          <div class="cs-ba-label before">Coarse pointer guard</div>
+          <div class="cs-ba-value before" style="font-size:0.9rem;margin-bottom:8px;">
+            (pointer: coarse)
+          </div>
+          <div class="cs-ba-desc">
+            PointerEngine checks <code style="font-family:var(--f-mono);font-size:0.8em">matchMedia('(pointer: coarse)')</code>
+            on mount. If true, returns before registering any listeners or
+            starting the RAF loop. Touch devices receive zero pointer-system
+            overhead — not degraded, absent.
+          </div>
+        </div>
+        <div class="cs-ba-arrow">+</div>
+        <div class="cs-ba-col after">
+          <div class="cs-ba-label after">Reduced-motion guard</div>
+          <div class="cs-ba-value after" style="font-size:0.9rem;margin-bottom:8px;">
+            prefers-reduced-motion
+          </div>
+          <div class="cs-ba-desc">
+            PointerEngine reads
+            <code style="font-family:var(--f-mono);font-size:0.8em">matchMedia('(prefers-reduced-motion: reduce)')</code>
+            and tracks live changes. When active, subscriber callbacks are
+            skipped on each RAF tick — position tracking continues (getState()
+            stays accurate) but no DOM transforms are applied.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── §7 · Visual Layer Stack ────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§7</span>
+        <span class="cs-section-label">Visual Layer Stack</span>
+      </div>
+
+      <h2 class="cs-h2">Atmosphere architecture</h2>
+
+      <p class="cs-p">
+        The visual system is composed of seven independent layers, each with
+        its own z-index plane, rendering technology, and update mechanism.
+        No layer depends on another at runtime — they are composited by the
+        browser.
+      </p>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">Complete layer stack — z-index ascending</div>
+        <pre>
+z     Layer             Component           Technology          Update mechanism
+────  ────────────────  ──────────────────  ──────────────────  ──────────────────────────────
+<span class="dim"> 0</span>    Dot grid          DotGrid.tsx         Canvas 2D           Static draw on mount;
+<span class="dim">   </span>                                                              CSS translate drift only
+<span class="hl"> 1</span>    WebGL sphere      ThreeCanvas.tsx     WebGL / Three.js    RAF rotation loop;
+<span class="hl">   </span>                                                              opacity 0.30; low-power ctx
+<span class="dim"> 3</span>    Depth vignette    DepthLayer.tsx      CSS gradients       ScrollEngine frameListener;
+<span class="dim">   </span>                                                              opacity 0→0.85 with scroll
+<span class="dim"> 3</span>    Cursor field      CursorField.tsx     CSS radial-gradient PointerEngine subscriber;
+<span class="dim">   </span>                                                              translate follows cursor
+<span class="dim"> 4</span>    Hero scene        HeroScene.tsx       React + CSS         SceneController state;
+<span class="dim">   </span>                                                              pointer depth on refs
+<span class="dim"> 5</span>    Philosophy scene  PhilosophyScene.tsx React + CSS         SceneController state
+<span class="dim"> 6</span>    Services scene    ServicesScene.tsx   React + CSS         SceneController state;
+<span class="dim">   </span>                                                              per-card stagger
+<span class="dim"> 7</span>    Work scene        WorkScene.tsx       React + CSS         SceneController state;
+<span class="dim">   </span>                                                              hover dim on siblings
+<span class="dim"> 7</span>    Logos scene       LogosScene.tsx      React + CSS         SceneController state;
+<span class="dim">   </span>                                                              logo stagger on entry
+<span class="dim"> 8</span>    CTA scene         CTAScene.tsx        React + CSS         SceneController state;
+<span class="dim">   </span>                                                              pointer button lift
+<span class="hl"> 9</span>    Hero signature    HeroSignature.tsx   CSS pseudo-elements Mounted once; static
+<span class="dim">9999</span>  Loader overlay    BootSystem.ts       React inline styles Unmounted 1.3s post-entry
+        </pre>
+      </div>
+
+      <div class="cs-callout">
+        <p>
+          <strong>atmosphereReady gate:</strong> All atmosphere components
+          (DotGrid, ThreeCanvas, DepthLayer, CursorField) are gated behind a
+          React state flag that is only set when the
+          <code style="font-family:var(--f-mono);font-size:0.85em">cinematic-entry</code>
+          event fires. They do not mount during the boot sequence — their RAF
+          loops and WebGL context are created only when they are about to
+          be visible.
+        </p>
+      </div>
+    </section>
+
+    <!-- ── §8 · Performance Budget ────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§8</span>
+        <span class="cs-section-label">Performance Budget</span>
+      </div>
+
+      <h2 class="cs-h2">Constraints and outcomes</h2>
+
+      <div class="cs-metrics">
+        <div class="cs-metric">
+          <div class="cs-metric-value">10.7 kB</div>
+          <div class="cs-metric-label">Entry bundle (gzip)</div>
+          <div class="cs-metric-note">Hero + boot only; was 58 kB</div>
+        </div>
+        <div class="cs-metric">
+          <div class="cs-metric-value">15</div>
+          <div class="cs-metric-label">JS chunks total</div>
+          <div class="cs-metric-note">10 lazy-loaded post cinematic-entry</div>
+        </div>
+        <div class="cs-metric">
+          <div class="cs-metric-value">0</div>
+          <div class="cs-metric-label">CDN dependencies</div>
+          <div class="cs-metric-note">All assets bundled from npm</div>
+        </div>
+        <div class="cs-metric">
+          <div class="cs-metric-value">2.38s</div>
+          <div class="cs-metric-label">Boot sequence</div>
+          <div class="cs-metric-note">Down from 3.38s in Phase 12</div>
+        </div>
+        <div class="cs-metric">
+          <div class="cs-metric-value">~15</div>
+          <div class="cs-metric-label">Compositor layers</div>
+          <div class="cs-metric-note">Within mobile GPU budget</div>
+        </div>
+        <div class="cs-metric">
+          <div class="cs-metric-value">0</div>
+          <div class="cs-metric-label">TypeScript errors</div>
+          <div class="cs-metric-note">tsc --strict; verified each phase</div>
+        </div>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top:48px">Lazy-loading architecture</h3>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">React.lazy() split points — App.tsx</div>
+        <pre>
+<span class="dim">// Eager — needed before cinematic-entry</span>
+<span class="hl">import</span> &#123; HeroScene &#125;     from './scenes/Hero/HeroScene'
+<span class="hl">import</span> &#123; BootSystem &#125;    from './boot/BootSystem'
+
+<span class="dim">// Lazy — deferred until cinematic-entry fires</span>
+<span class="hl-v">const</span> PhilosophyScene = lazy(() =&gt; import('./scenes/Philosophy/PhilosophyScene'))
+<span class="hl-v">const</span> ServicesScene   = lazy(() =&gt; import('./scenes/Services/ServicesScene'))
+<span class="hl-v">const</span> WorkScene       = lazy(() =&gt; import('./scenes/Work/WorkScene'))
+<span class="hl-v">const</span> LogosScene      = lazy(() =&gt; import('./scenes/Logos/LogosScene'))
+<span class="hl-v">const</span> CTAScene        = lazy(() =&gt; import('./scenes/CTA/CTAScene'))
+
+<span class="dim">// Atmosphere — additionally gated by atmosphereReady state flag</span>
+<span class="hl-v">const</span> DotGrid         = lazy(() =&gt; import('./visual/atmosphere/DotGrid'))
+<span class="hl-v">const</span> ThreeCanvas     = lazy(() =&gt; import('./visual/three/ThreeCanvas'))
+<span class="hl-v">const</span> DepthLayer      = lazy(() =&gt; import('./visual/atmosphere/DepthLayer'))
+<span class="hl-v">const</span> CursorField     = lazy(() =&gt; import('./visual/atmosphere/CursorField'))
+        </pre>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top:40px">Three.js budget</h3>
+
+      <p class="cs-p">
+        With Three.js in the bundle (not CDN), every byte was audited.
+        The mandala sphere is a visual element rendered at 30% opacity behind
+        text — the perceptual contribution of additional geometric precision
+        is zero. Budget decisions accordingly:
+      </p>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">Three.js geometry reduction</div>
+        <pre>
+                      Before          After           Rationale
+────────────────────  ──────────────  ──────────────  ──────────────────────────────
+Sphere segments       64 × 64         32 × 32         Appropriate for display size + opacity
+Texture resolution    1024 × 1024 px  512 × 512 px    Imperceptible at 30% opacity
+Pixel ratio cap       device (max 4)  1.5             Retina gain at 30% opacity = 0
+Power preference      —               low-power       Battery + thermal, mobile especially
+Reduced-motion        renders         skips entirely  WebGL context never created
+        </pre>
+      </div>
+    </section>
+
+    <!-- ── §9 · Observability Layer ───────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§9</span>
+        <span class="cs-section-label">Observability Layer</span>
+      </div>
+
+      <h2 class="cs-h2">CinematicMonitor</h2>
+
+      <p class="cs-p">
+        All production bugs were found by reading code and reasoning about
+        behavior, not by instrumenting production traffic. The observability
+        layer was built for development confidence, not production monitoring.
+        Its production cost is exactly zero.
+      </p>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">CinematicMonitor API — dev-only (import.meta.env.DEV)</div>
+        <pre>
+window.__cinematic.snapshot()   → EngineSnapshot &#123;
+    fps:         &#123; avg1s: number, avg5s: number &#125;
+    spikes:      &#123; count: number, worst: number &#125;    ← frames &gt; 20ms
+    activeScene: string
+    scrollPct:   number
+    pointer:     &#123; nx: number, ny: number, active: boolean &#125;
+    health:      &#123;
+        scrollReady:   boolean,    ← ScrollEngine initialized
+        pointerReady:  boolean,    ← PointerEngine mounted
+        bootComplete:  boolean,    ← BootSystem completed
+    &#125;
+    subscribers: &#123;
+        scroll:  number,           ← active SceneController subscribers
+        pointer: number,           ← active PointerEngine subscribers
+    &#125;
+&#125;
+
+window.__cinematic.history()    → SceneTransition[]  ← last 50, ring buffer
+window.__cinematic.fps()        → &#123; avg1s, avg5s &#125;
+window.__cinematic.health()     → EngineHealth flags
+window.__cinematic.reset()      → clears accumulators
+        </pre>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top:40px">DebugOverlay</h3>
+
+      <p class="cs-p">
+        Toggle with <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">Ctrl+Shift+D</code>.
+        Fixed position, top-right, 1Hz polling via setInterval (not RAF —
+        zero cost when off). Displays FPS (color-coded: green &gt;50, yellow &gt;30,
+        red otherwise), frame spikes, active scene, scroll %, pointer
+        coordinates, and all engine health flags.
+      </p>
+
+      <div class="cs-callout">
+        <p>
+          <strong>Production cost:</strong>
+          <code style="font-family:var(--f-mono);font-size:0.85em">import.meta.env.DEV</code>
+          guards at the JSX render site cause Vite to tree-shake the entire
+          DebugOverlay module at build time. CinematicMonitor class is
+          present in production but all method bodies are empty no-op stubs —
+          the DEV guard causes Vite to replace each branch with
+          <code style="font-family:var(--f-mono);font-size:0.85em">undefined</code>.
+          Zero runtime cycles in production.
+        </p>
+      </div>
+    </section>
+
+    <!-- ── §10 · CSS Easing System ────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§10</span>
+        <span class="cs-section-label">CSS Easing System</span>
+      </div>
+
+      <h2 class="cs-h2">Cinematic easing token</h2>
+
+      <p class="cs-p">
+        The project uses a single easing curve across all transitions.
+        It is not a preference — it is a specification. Violating it
+        produces a perceptible inconsistency that reads as an accident.
+      </p>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">Easing token definition</div>
+        <pre>
+--ease-cinema: cubic-bezier(0.16, 1, 0.3, 1);
+
+<span class="dim">/*
+  This is an "expo out" approximation.
+  Characteristics:
+    - Very fast initial acceleration (0.16 x1)
+    - Settles with an extremely long, soft tail (1.0 y1, 0.3 x2)
+    - At 60fps: visually resolves in ~70% of declared duration
+    - The tail creates perceived elasticity without overshoot
+
+  Applied to:
+    - All scene opacity / blur / translateY transitions
+    - Hover micro-interactions (.work-cta-link, .cta-footer a)
+    - Loader overlay fade
+    - Case study nav hover
+
+  Exceptions (intentional):
+    - prefers-reduced-motion override blocks: bare `ease` (semantic)
+    - ThreeCanvas material animation: Three.js internal
+*/</span>
+        </pre>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top:40px">Transition duration hierarchy</h3>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">Duration assignments by layer</div>
+        <pre>
+Layer                    Property     Duration    Notes
+───────────────────────  ───────────  ──────────  ──────────────────────────────
+Scene transitions        opacity      1.48–1.84s  slowest layer; scene cross-dissolve
+Scene transitions        blur         1.55–1.84s  slightly longer than opacity
+Scene transitions        translateY   1.84–2.0s   longest; creates trailing weight
+Hover micro-interactions opacity      0.2s        immediate but not instant
+Hover micro-interactions color        0.2s        consistent with opacity
+Boot loader              opacity      0.8s        loader fade-out feels deliberate
+Nav links                color        0.3s        perceptibly responsive
+        </pre>
+      </div>
+    </section>
+
+    <!-- ── §11 · Accessibility Contract ──────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§11</span>
+        <span class="cs-section-label">Accessibility Contract</span>
+      </div>
+
+      <h2 class="cs-h2">Three degradation vectors</h2>
+
+      <p class="cs-p">
+        The cinematic experience is designed to degrade gracefully across three
+        vectors. Each is handled at the appropriate layer — CSS for the
+        declarative tier, JS for the runtime tier.
+      </p>
+
+      <div class="cs-decisions">
+
+        <div class="cs-decision">
+          <span class="cs-decision-status chosen">CSS</span>
+          <div>
+            <div class="cs-decision-what">prefers-reduced-motion — CSS layer</div>
+            <div class="cs-decision-why">
+              Global override in scenes.css:
+              <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">* &#123; transition: none !important; animation: none !important; &#125;</code>
+              Kills all breathing animations and CSS-driven pointer transforms.
+            </div>
+          </div>
+          <div>
+            <div class="cs-decision-what">Scope and trade-offs</div>
+            <div class="cs-decision-why">
+              The
+              <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">!important</code>
+              override is deliberately blunt — this is an accessibility
+              declaration, not a style choice. The CTA availability pulse and
+              philosophy breathing animations both cease entirely.
+            </div>
+          </div>
+        </div>
+
+        <div class="cs-decision">
+          <span class="cs-decision-status chosen">JS</span>
+          <div>
+            <div class="cs-decision-what">prefers-reduced-motion — JS layer</div>
+            <div class="cs-decision-why">
+              PointerEngine reads
+              <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">matchMedia('(prefers-reduced-motion: reduce)')</code>
+              and adds a change listener. If reduced motion is activated
+              mid-session, pointer subscriber callbacks skip on the next
+              RAF tick — no page reload required. ThreeCanvas never creates
+              its WebGL renderer under reduced motion.
+            </div>
+          </div>
+          <div>
+            <div class="cs-decision-what">Live update model</div>
+            <div class="cs-decision-why">
+              The media query change listener modifies a boolean flag read
+              inside the RAF loop — no engine restart, no state reset.
+              Toggling OS accessibility settings takes effect within one frame.
+            </div>
+          </div>
+        </div>
+
+        <div class="cs-decision">
+          <span class="cs-decision-status chosen">JS</span>
+          <div>
+            <div class="cs-decision-what">Coarse pointer (touch devices)</div>
+            <div class="cs-decision-why">
+              PointerEngine and CursorField both independently check
+              <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">(pointer: coarse)</code>
+              on mount. Either check causes the entire pointer system to be
+              absent — no RAF loop, no listener, no DOM touches.
+              The independent check on CursorField is deliberate: defense
+              in depth rather than trusting a single gate.
+            </div>
+          </div>
+          <div>
+            <div class="cs-decision-what">Why absent, not degraded</div>
+            <div class="cs-decision-why">
+              A touch device user receives the full scene experience —
+              scroll-driven transitions, atmosphere layers, all content.
+              Only the pointer-responsive effects are absent.
+              There is no fallback cursor shimmer or touch alternative
+              because the pointer effects are enhancement only.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── §12 · Lifecycle Contracts ──────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§12</span>
+        <span class="cs-section-label">Lifecycle Contracts</span>
+      </div>
+
+      <h2 class="cs-h2">Mount / unmount rules</h2>
+
+      <p class="cs-p">
+        Phase 9 discovered that lifecycle correctness is the most common
+        source of subtle production bugs. These are the rules that were
+        formalised after that audit.
+      </p>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">Engine lifecycle contracts</div>
+        <pre>
+Engine              mount() / initialize()             unmount() / destroy()
+──────────────────  ─────────────────────────────────  ──────────────────────────────────────
+<span class="hl">ScrollEngine</span>        Lenis created, RAF attached,        lenis.destroy(), RAF cancelled,
+                    <span class="hl">NOT</span> started (start() called later)  visibilitychange removed, _running=false
+
+<span class="hl">PointerEngine</span>       mousemove on window (passive),       mousemove + mouseleave references
+                    mouseleave on window,                removed (exact reference, not anon),
+                    RAF loop started                    RAF cancelled, _lastTime reset
+
+<span class="hl">CinematicOrchestrator</span>  run() — one call            cancel() — calls ScrollEngine.destroy()
+                                                        + PointerEngine.unmount(),
+                                                        _started=false (clean re-mount)
+        </pre>
+      </div>
+
+      <div class="cs-callout">
+        <p>
+          <strong>React StrictMode double-mount:</strong>
+          CinematicOrchestrator.cancel() resets
+          <code style="font-family:var(--f-mono);font-size:0.85em">_started = false</code>
+          so the startup pipeline runs cleanly on the second mount cycle.
+          Without this reset, StrictMode's unmount+remount would leave
+          the app blank — run() would see
+          <code style="font-family:var(--f-mono);font-size:0.85em">_started = true</code>
+          and return immediately.
+        </p>
+      </div>
+    </section>
+
+    <!-- ── §13 · Change Log ───────────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">§13</span>
+        <span class="cs-section-label">Change Log</span>
+      </div>
+
+      <h2 class="cs-h2">Production phases</h2>
+
+      <div class="cs-timeline">
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">2026-03-27</span>
+          <div>
+            <div class="cs-timeline-title">Initial build</div>
+            <p class="cs-timeline-desc">
+              Astro project, dark theme, Three.js CDN 3D background, basic
+              sections. Prototype quality — module loading issues, no architecture.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">2026-03-28</span>
+          <div>
+            <div class="cs-timeline-title">Three.js stabilisation</div>
+            <p class="cs-timeline-desc">
+              CDN loading fixed. Scripts converted to plain JS for compatibility.
+              First stable deployment.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">2026-05-13 · Phase 1–6</span>
+          <div>
+            <div class="cs-timeline-title">Full cinematic system</div>
+            <p class="cs-timeline-desc">
+              Complete rewrite. SceneController, ScrollEngine, PointerEngine,
+              BootSystem, all six scenes, atmosphere layer, 1948-line CSS.
+              CinematicOrchestrator deterministic startup pipeline.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">2026-05-13 · Phase 7</span>
+          <div>
+            <div class="cs-timeline-title">Easing normalisation</div>
+            <p class="cs-timeline-desc">
+              Two micro-interaction transitions corrected to cinematic easing token.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">2026-05-13 · Phase 8</span>
+          <div>
+            <div class="cs-timeline-title">System hardening</div>
+            <p class="cs-timeline-desc">
+              ServicesScene translateY fix, dead code removed, try/catch boundaries,
+              passive resize listeners, prefers-reduced-motion JS gate, dead export removed.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">2026-05-13 · Phase 9</span>
+          <div>
+            <div class="cs-timeline-title">Lifecycle hardening</div>
+            <p class="cs-timeline-desc">
+              PointerEngine listener leak fixed, LERP delta-time normalised,
+              ScrollEngine visibilitychange guard, CinematicOrchestrator cancel() cleanup.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">2026-05-13 · Phase 10</span>
+          <div>
+            <div class="cs-timeline-title">Observability layer</div>
+            <p class="cs-timeline-desc">
+              CinematicMonitor, DebugOverlay, engine instrumentation.
+              Zero production cost via import.meta.env.DEV tree-shaking.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">2026-05-13 · Phase 11</span>
+          <div>
+            <div class="cs-timeline-title">Production performance</div>
+            <p class="cs-timeline-desc">
+              React.lazy() code-splitting, Three.js bundled from npm,
+              atmosphereReady gate, coarse-pointer guard. Entry bundle −82%.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">2026-05-13 · Phase 12</span>
+          <div>
+            <div class="cs-timeline-title">Experience audit</div>
+            <p class="cs-timeline-desc">
+              Boot −1s, hero reveal −280ms, broken content removed, stale dates
+              corrected, semantic glow inversion fixed, mobile landscape restored.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item active">
+          <span class="cs-timeline-phase">2026-05-16 · Phase 13</span>
+          <div>
+            <div class="cs-timeline-title">Portfolio productisation</div>
+            <p class="cs-timeline-desc">
+              Case study surface audit, architecture reference (this document),
+              main portfolio case-study entry point, ARCHITECTURE.md reference file.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="cs-page">
+    <div class="cs-footer">
+      <span class="cs-footer-brand">DA VINCI STUDIO</span>
+      <span class="cs-footer-meta">Architecture Reference · Rev. 13 · © 2026 Sajed Hamouda</span>
+      <a href="/case-study" class="cs-footer-link">← Case study</a>
+    </div>
+  </footer>
+
+</CaseStudyLayout>
