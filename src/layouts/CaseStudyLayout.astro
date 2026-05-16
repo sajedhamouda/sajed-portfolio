@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import '../styles/case-study.css';
 import Analytics from '../components/Analytics.astro';
 
 interface Props {
@@ -13,10 +14,10 @@ interface Props {
 const SITE_URL = 'https://davincistudio.ae';
 
 const {
-  title       = 'Sajed Hamouda — Da Vinci Studio',
-  description = 'Wix Certified Web Designer & UI/UX Specialist based in Abu Dhabi, UAE. Founder of Da Vinci Studio — premium digital experiences for luxury brands, clinics, and specialist firms.',
-  ogImage     = '/og/home.svg',
-  canonical   = SITE_URL,
+  title       = 'Case Study — Da Vinci Studio Cinematic Portfolio',
+  description = 'A detailed engineering and design case study of the Da Vinci Studio cinematic portfolio system. Architecture, performance, interaction design, and production methodology.',
+  ogImage     = '/og/case-study.svg',
+  canonical   = `${SITE_URL}/case-study`,
   noindex     = false,
 } = Astro.props;
 
@@ -36,7 +37,7 @@ const fullOgImage = ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage
     <link rel="canonical"    href={canonical} />
 
     <!-- Open Graph -->
-    <meta property="og:type"        content="website" />
+    <meta property="og:type"        content="article" />
     <meta property="og:site_name"   content="Da Vinci Studio" />
     <meta property="og:url"         content={canonical} />
     <meta property="og:title"       content={title} />
@@ -59,7 +60,7 @@ const fullOgImage = ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage
     <link rel="icon"             type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.ico" />
 
-    <!-- Fonts — non-blocking (media=print swap trick) -->
+    <!-- Fonts — non-blocking -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -74,60 +75,9 @@ const fullOgImage = ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage
 
     <!-- Analytics (privacy-first, no-op when PUBLIC_UMAMI_URL not set) -->
     <Analytics />
-
-    <!-- Structured data — Person + WebSite -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "Person",
-          "name": "Sajed Hamouda",
-          "jobTitle": "Web Designer & UI/UX Specialist",
-          "url": "https://davincistudio.ae",
-          "email": "sajed@davincistudio.ae",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Abu Dhabi",
-            "addressCountry": "AE"
-          },
-          "sameAs": [
-            "https://www.linkedin.com/in/m-sajed-hamouda"
-          ]
-        },
-        {
-          "@type": "WebSite",
-          "name": "Da Vinci Studio",
-          "url": "https://davincistudio.ae"
-        }
-      ]
-    }
-    </script>
   </head>
-  <body>
+  <body class="cs-body">
+    <a href="#main-content" class="cs-skip-link">Skip to main content</a>
     <slot />
   </body>
 </html>
-
-<style>
-  :global(*), :global(*::before), :global(*::after) {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  :global(html) {
-    scroll-behavior: auto;
-    overflow-x: hidden;
-    height: 100%;
-  }
-  :global(body) {
-    background: #000;
-    color: #f0f0f0;
-    font-family: 'Outfit', sans-serif;
-    font-weight: 300;
-    overflow-x: hidden;
-    height: 100%;
-    min-height: 100vh;
-    min-height: 100dvh;
-  }
-</style>

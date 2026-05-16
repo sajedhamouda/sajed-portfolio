@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#000000"/>
+      <stop offset="100%" style="stop-color:#080808"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00f0ff;stop-opacity:0.08"/>
+      <stop offset="100%" style="stop-color:#00f0ff;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Subtle grid -->
+  <g stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none">
+    <line x1="0" y1="210" x2="1200" y2="210"/>
+    <line x1="0" y1="420" x2="1200" y2="420"/>
+    <line x1="400" y1="0" x2="400" y2="630"/>
+    <line x1="800" y1="0" x2="800" y2="630"/>
+  </g>
+
+  <!-- Cyan accent glow -->
+  <ellipse cx="200" cy="315" rx="300" ry="200" fill="url(#glow)"/>
+
+  <!-- Top eyeline -->
+  <rect x="80" y="80" width="32" height="1" fill="#00f0ff" opacity="0.5"/>
+  <text x="128" y="87" font-family="'Courier New', monospace" font-size="11" fill="#00f0ff" opacity="0.7" letter-spacing="3">DA VINCI STUDIO · ABU DHABI, UAE</text>
+
+  <!-- Main headline -->
+  <text x="80" y="280" font-family="Impact, 'Arial Black', sans-serif" font-size="132" fill="#f0f0f0" letter-spacing="2" font-weight="900">SAJED</text>
+  <text x="80" y="420" font-family="Impact, 'Arial Black', sans-serif" font-size="132" fill="none" stroke="#00f0ff" stroke-width="1" letter-spacing="2" opacity="0.6">HAMOUDA</text>
+
+  <!-- Descriptor -->
+  <text x="80" y="490" font-family="'Courier New', monospace" font-size="15" fill="rgba(240,240,240,0.5)" letter-spacing="4">WEB DESIGNER &amp; UI/UX SPECIALIST</text>
+
+  <!-- Right side metadata -->
+  <text x="1120" y="87" font-family="'Courier New', monospace" font-size="11" fill="rgba(240,240,240,0.3)" letter-spacing="2" text-anchor="end">2026</text>
+
+  <!-- Bottom line -->
+  <rect x="80" y="560" width="1040" height="1" fill="rgba(255,255,255,0.06)"/>
+  <text x="80" y="582" font-family="'Courier New', monospace" font-size="11" fill="rgba(240,240,240,0.3)" letter-spacing="2">davincistudio.ae</text>
+  <text x="1120" y="582" font-family="'Courier New', monospace" font-size="11" fill="#00f0ff" opacity="0.5" letter-spacing="2" text-anchor="end">PREMIUM DIGITAL EXPERIENCES</text>
+</svg>

@@ -1,0 +1,905 @@
+---
+import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
+---
+
+<CaseStudyLayout
+  title="Cinematic Portfolio System — Case Study · Da Vinci Studio"
+  description="How a scroll-driven cinematic portfolio was built in 13 production phases — zero animation libraries, −82% bundle reduction, and engineering decisions made from first principles."
+  ogImage="/og/case-study.svg"
+  canonical="https://davincistudio.ae/case-study"
+>
+
+  <!-- Navigation -->
+  <nav class="cs-nav">
+    <a href="/" class="cs-nav-back">← Back to portfolio</a>
+    <span class="cs-nav-title">Case Study</span>
+    <span class="cs-nav-tag">v1.0 · 2026</span>
+  </nav>
+
+  <main id="main-content" class="cs-page">
+
+    <!-- ── Hero ────────────────────────────────────────────────────────────── -->
+    <header class="cs-hero">
+      <div class="cs-hero-eyeline">
+        <span class="cs-eyeline-dash"></span>
+        <span class="cs-eyeline-text">Da Vinci Studio · Engineering Case Study</span>
+      </div>
+
+      <h1 class="cs-hero-title">
+        Cinematic<br />
+        <span>Portfolio System</span>
+      </h1>
+
+      <p class="cs-hero-sub">
+        A scroll-driven cinematic experience built as a precision engineering
+        exercise — not a visual showcase. Every frame, transition, and
+        interaction decision made from first principles. Thirteen production
+        phases. Zero external animation libraries.
+      </p>
+
+      <div class="cs-hero-meta">
+        <div class="cs-meta-item">
+          <span class="cs-meta-label">Stack</span>
+          <span class="cs-meta-value">Astro 6 · React 19 · Tailwind 4</span>
+        </div>
+        <div class="cs-meta-item">
+          <span class="cs-meta-label">Duration</span>
+          <span class="cs-meta-value">13 production phases</span>
+        </div>
+        <div class="cs-meta-item">
+          <span class="cs-meta-label">Entry bundle</span>
+          <span class="cs-meta-value">10.7 kB gzip</span>
+        </div>
+        <div class="cs-meta-item">
+          <span class="cs-meta-label">Animation</span>
+          <span class="cs-meta-value">CSS transitions + RAF only</span>
+        </div>
+        <div class="cs-meta-item">
+          <span class="cs-meta-label">Scope</span>
+          <span class="cs-meta-value">Solo — design, engineering, production</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── 01 · Vision ──────────────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">01</span>
+        <span class="cs-section-label">Project Vision</span>
+      </div>
+
+      <h2 class="cs-h2">The brief I set myself</h2>
+
+      <div class="cs-cols">
+        <div>
+          <p class="cs-p">
+            Most portfolios demonstrate what their owner can <em>build</em>.
+            This one was meant to demonstrate how their owner <em>thinks</em>.
+            The difference is architectural: every decision made here is
+            traceable to a reason, not a trend.
+          </p>
+          <p class="cs-p">
+            The constraint was deliberate: <strong>no GSAP, no Framer Motion,
+            no animation libraries.</strong> If the experience required a scroll
+            hijacker or a keyframe engine to work, the design was wrong.
+            The goal was to find the minimum viable motion — the smallest
+            gesture that communicates depth without demanding attention.
+          </p>
+          <p class="cs-p">
+            "Cinematic" here does not mean cinematic effects. It means
+            cinematic pacing: the discipline of knowing when <em>not</em> to move.
+          </p>
+        </div>
+        <div>
+          <p class="cs-p">
+            The target audience for this portfolio is not the average visitor.
+            It is the art director at a luxury brand who opens ten portfolios
+            a day. The signal needed to be immediate and unmistakable: this
+            person makes deliberate choices and can be trusted with a brand
+            that cannot afford to look like everything else.
+          </p>
+          <div class="cs-callout">
+            <p>
+              <strong>Design constraint:</strong> Every element on screen must
+              be explainable in one sentence of functional purpose. If the
+              explanation begins with "it looks cool," remove it.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 02 · Cinematic Philosophy ─────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">02</span>
+        <span class="cs-section-label">Cinematic Philosophy</span>
+      </div>
+
+      <h2 class="cs-h2">Motion hierarchy</h2>
+
+      <p class="cs-p">
+        The system operates on three motion planes. Each plane has a defined
+        speed ceiling. Violating the ceiling — moving something faster than
+        its layer permits — is treated as a design error, not a style choice.
+      </p>
+
+      <div class="cs-principles">
+        <div class="cs-principle">
+          <span class="cs-principle-num">LAYER 1</span>
+          <div class="cs-principle-title">Scene transitions</div>
+          <p class="cs-principle-body">
+            Duration: 1.48–2.36 seconds. Easing: cubic-bezier(0.16, 1, 0.3, 1).
+            This is the slowest layer. Scene state changes via scroll are never
+            interrupted and never compete with pointer interaction.
+          </p>
+        </div>
+        <div class="cs-principle">
+          <span class="cs-principle-num">LAYER 2</span>
+          <div class="cs-principle-title">Atmosphere</div>
+          <p class="cs-principle-body">
+            The dot grid, depth planes, and cursor field operate on their own
+            RAF loops. They are imperceptible individually — their combined
+            effect is spatial depth without any single element demanding
+            the eye's attention.
+          </p>
+        </div>
+        <div class="cs-principle">
+          <span class="cs-principle-num">LAYER 3</span>
+          <div class="cs-principle-title">Pointer response</div>
+          <p class="cs-principle-body">
+            Duration: 0.3–0.8 seconds. LERP factor: 0.055 at 60fps,
+            delta-time normalised. Max displacement: 8px. Pointer movement
+            always settles faster than scene transitions — micro-movements
+            never outlast the larger motion they accompany.
+          </p>
+        </div>
+      </div>
+
+      <div class="cs-callout violet">
+        <p>
+          <strong>Restraint as a technical decision:</strong> The cursor
+          parallax max values (±8px foreground, ±5px background) were not
+          chosen aesthetically. They were derived from the threshold at which
+          a user stops perceiving depth and starts perceiving jitter.
+          Below 8px: spatial. Above 8px: distracting.
+        </p>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top: 48px;">Why no GSAP</h3>
+      <p class="cs-p">
+        GSAP is an exceptional tool. It was rejected here not because it
+        performs poorly, but because it would have obscured the system.
+        Every transition in this project is a CSS value — readable,
+        auditable, and debuggable without a timeline abstraction in the way.
+        The constraint produced sharper decisions.
+      </p>
+      <p class="cs-p">
+        The one exception considered was scroll velocity integration — GSAP
+        ScrollTrigger offers fractional-velocity easing that CSS cannot
+        replicate. The trade-off was bundle cost (~35 kB gzip) for a
+        perceptual gain that most users would not notice. It was rejected.
+      </p>
+    </section>
+
+    <!-- ── 03 · Architecture ─────────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">03</span>
+        <span class="cs-section-label">Technical Architecture</span>
+      </div>
+
+      <h2 class="cs-h2">Engine ownership</h2>
+
+      <p class="cs-p">
+        Every running loop in the system has a single owner.
+        Nothing subscribes to the DOM directly. No component starts its own
+        scroll listener. The ownership model is the architecture.
+      </p>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">System ownership map</div>
+        <pre>
+<span class="hl">CinematicOrchestrator</span>                         ← single startup authority
+  │
+  ├── registers scenes ──────────────────────→ <span class="hl">SceneController</span>
+  │                                                 │
+  ├── initialises scroll ──────────────────→ <span class="hl">ScrollEngine</span> (Lenis v1)
+  │                                                 │
+  ├── mounts pointer ──────────────────────→ <span class="hl">PointerEngine</span>
+  │                                                 │
+  └── runs boot sequence ──────────────────→ <span class="hl">BootSystem</span>
+                                                    │
+                                              fires cinematic-entry
+                                                    │
+                                    ┌───────────────┴───────────────┐
+                                    ↓                               ↓
+                             <span class="hl-v">App.tsx</span>                     <span class="hl-v">HeroScene</span>
+                          (loader fade,               (200ms delay,
+                          app fade-in,                 text reveal)
+                          atmosphere mount)
+        </pre>
+      </div>
+
+      <h3 class="cs-h3">Scene engine</h3>
+      <p class="cs-p">
+        Each scene is a fixed-position layer with a scroll range [start, end]
+        mapped to normalised progress 0–1. <strong>SceneController</strong>
+        computes three states: <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">inactive</code>,
+        <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">secondary</code>,
+        <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">primary</code>.
+        Scenes overlap intentionally — the 3% soft boundary means transitions
+        begin before hard state changes, which is what produces the
+        cross-dissolve effect between scenes.
+      </p>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">Scene scroll ranges (normalised 0–1)</div>
+        <pre>
+0.0         0.1         0.2         0.3         0.4         0.5         0.6         0.7         0.8         0.9        1.0
+│                       │                       │                       │                       │                      │
+<span class="hl">████████████████</span><span class="dim">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>  hero       [0.00–0.15]
+<span class="dim">░░░░</span><span class="hl-v">████████████████████████████████</span><span class="dim">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>  philosophy [0.12–0.35]
+<span class="dim">░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span><span class="hl">████████████████████████████████</span><span class="dim">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>  services   [0.32–0.55]
+<span class="dim">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span><span class="hl-v">████████████████████████████████████████</span><span class="dim">░░░░░░░</span>  work       [0.52–0.78]
+<span class="dim">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span><span class="hl">██████████████████████</span><span class="dim">░</span>  logos      [0.75–0.90]
+<span class="dim">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span><span class="hl-v">█████████████</span>  cta        [0.88–1.00]
+        </pre>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top: 40px;">Atmosphere layering</h3>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">Visual layer stack (z-index, bottom to top)</div>
+        <pre>
+z-index   Layer                    Technology            Notes
+────────  ───────────────────────  ────────────────────  ──────────────────────────────────
+<span class="dim">  0</span>       DotGrid                  Canvas + CSS          Single static draw; CSS translate drift
+<span class="hl">  1</span>       ThreeCanvas              WebGL (Three.js)      Mandala sphere, opacity 0.30, low-power
+<span class="dim">  3</span>       DepthLayer               CSS gradients         Scroll-driven vignette + blind plane
+<span class="dim">  3</span>       CursorField              CSS radial gradient   Pointer-driven; skipped on touch devices
+<span class="dim">  4–8</span>    Scene layers             React + CSS           Fixed, state-driven opacity/blur/transform
+<span class="hl">  9</span>       HeroSignature            CSS pseudo-elements   Scanline, focus zone, corner brackets
+<span class="dim">9999</span>     Loader overlay           React inline styles   Unmounted after 1.3s post-entry
+        </pre>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top: 40px;">Scroll engine</h3>
+      <p class="cs-p">
+        Lenis v1 provides inertial scrolling with a configurable easing
+        function. Duration: 1.4s, custom exponential ease. The engine runs
+        a single RAF loop that feeds normalised scroll progress into
+        SceneController on every frame.
+      </p>
+      <p class="cs-p">
+        Two resilience additions were made during the audit phase: a
+        <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">visibilitychange</code>
+        handler that pauses Lenis when the tab is hidden (preventing scroll
+        drift on resume), and a try/catch boundary around
+        initialisation so a Lenis failure does not block the cinematic entry.
+      </p>
+
+      <h3 class="cs-h3" style="margin-top: 40px;">Pointer engine</h3>
+      <p class="cs-p">
+        A single global <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">mousemove</code>
+        listener feeds raw coordinates into a delta-time-normalised LERP
+        loop. Subscribers receive a smoothed snapshot per frame —
+        zero per-element listeners, zero React re-renders.
+      </p>
+      <p class="cs-p">
+        The LERP constant (0.055 at 60fps) was chosen to produce a 90%
+        decay in approximately 40 frames (~667ms). This creates the perception
+        of weight without sluggishness. At 120fps the constant is automatically
+        recalculated via the delta-time formula so behaviour is frame-rate
+        independent.
+      </p>
+
+      <div class="cs-callout">
+        <p>
+          <strong>Mobile guard:</strong> On
+          <code style="font-family:var(--f-mono);font-size:0.85em">(pointer: coarse)</code>
+          devices, PointerEngine never mounts — the RAF loop, listener, and
+          all subscriber callbacks are skipped entirely. CursorField applies
+          the same check independently. Touch devices receive zero JS overhead
+          from the pointer system.
+        </p>
+      </div>
+    </section>
+
+    <!-- ── 04 · Performance ──────────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">04</span>
+        <span class="cs-section-label">Performance Engineering</span>
+      </div>
+
+      <h2 class="cs-h2">What Phase 11 changed</h2>
+
+      <p class="cs-p">
+        Performance work in Phase 11 was not optimisation theater.
+        The CDN dependency, the monolithic bundle, and the loader-hidden WebGL
+        were three concrete problems with measurable user impact.
+        Each was resolved at the root.
+      </p>
+
+      <!-- Entry bundle before/after -->
+      <div class="cs-before-after">
+        <div class="cs-ba-col before">
+          <div class="cs-ba-label before">Before Phase 11</div>
+          <div class="cs-ba-value before">58 kB</div>
+          <div class="cs-ba-desc">
+            Entry bundle (gzip). All 6 scenes + Three.js CDN script injection.
+            Blocked on network for Three.js r128 from cdnjs.
+          </div>
+        </div>
+        <div class="cs-ba-arrow">→</div>
+        <div class="cs-ba-col after">
+          <div class="cs-ba-label after">After Phase 11</div>
+          <div class="cs-ba-value after">10.7 kB</div>
+          <div class="cs-ba-desc">
+            Entry bundle (gzip). Hero + boot only. All other systems deferred
+            via React.lazy() — each in its own chunk, fetched in parallel
+            after the cinematic loader clears.
+          </div>
+        </div>
+      </div>
+
+      <div class="cs-metrics">
+        <div class="cs-metric">
+          <div class="cs-metric-value">−82%</div>
+          <div class="cs-metric-label">Entry bundle reduction</div>
+          <div class="cs-metric-note">58 kB → 10.7 kB (gzip)</div>
+        </div>
+        <div class="cs-metric">
+          <div class="cs-metric-value">15</div>
+          <div class="cs-metric-label">JS chunks (was 5)</div>
+          <div class="cs-metric-note">10 lazy-loaded, 5 eager</div>
+        </div>
+        <div class="cs-metric">
+          <div class="cs-metric-value">0</div>
+          <div class="cs-metric-label">CDN dependencies</div>
+          <div class="cs-metric-note">Three.js bundled from npm</div>
+        </div>
+        <div class="cs-metric">
+          <div class="cs-metric-value">0</div>
+          <div class="cs-metric-label">WebGL frames hidden</div>
+          <div class="cs-metric-note">ThreeCanvas deferred post-entry</div>
+        </div>
+      </div>
+
+      <h3 class="cs-h3" style="margin-top: 48px;">The CDN problem</h3>
+      <p class="cs-p">
+        The original ThreeCanvas injected a
+        <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">&lt;script&gt;</code>
+        tag at runtime to load Three.js r128 from cdnjs. This was the
+        worst possible pattern for three reasons: it added a network
+        round-trip at runtime, it was completely invisible to the bundler
+        (no tree-shaking, no preloading, no offline resilience), and it
+        pinned the project to an old version with no upgrade path.
+      </p>
+      <p class="cs-p">
+        The fix was a single-line import change — Three.js was already in
+        <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">package.json</code>.
+        The CDN script had been added during early prototyping and never
+        cleaned up. The lesson: prototype debt is invisible until you
+        audit from first principles.
+      </p>
+
+      <h3 class="cs-h3" style="margin-top: 40px;">The atmosphereReady gate</h3>
+      <p class="cs-p">
+        Before Phase 11, DotGrid, ThreeCanvas, DepthLayer, and CursorField
+        all mounted the instant <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">domReady=true</code>
+        fired — roughly 2.4 seconds before the user could see them,
+        hidden behind the loader overlay at z-index 9999.
+      </p>
+      <p class="cs-p">
+        The <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">atmosphereReady</code>
+        state flag delays mounting until the
+        <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">cinematic-entry</code>
+        event fires — the exact moment the loader begins fading and the
+        atmosphere becomes visible. The RAF loops and WebGL context are
+        created only when they are about to be seen. This is not
+        micro-optimisation; it is correctness.
+      </p>
+
+      <h3 class="cs-h3" style="margin-top: 40px;">Three.js geometry decisions</h3>
+      <p class="cs-p">
+        With Three.js now in the bundle, the sphere geometry was audited.
+        The original used 64×64 segments — appropriate for a close-up model,
+        visibly overkill for a sphere rendered at 30% opacity behind text.
+        Reduced to 32×32. Texture canvas halved from 1024px to 512px.
+        Pixel ratio capped at 1.5 — retina rendering gains at 30% opacity
+        are imperceptible but the GPU cost is not. Power preference set to
+        <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">low-power</code>.
+      </p>
+    </section>
+
+    <!-- ── 05 · Design Decisions ─────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">05</span>
+        <span class="cs-section-label">Design Decisions</span>
+      </div>
+
+      <h2 class="cs-h2">What was rejected and why</h2>
+
+      <p class="cs-p">
+        Maturity in interface design is often visible in what is missing.
+        These are decisions that were explicitly evaluated and rejected —
+        not overlooked.
+      </p>
+
+      <div class="cs-decisions">
+
+        <div class="cs-decision">
+          <span class="cs-decision-status rejected">Rejected</span>
+          <div>
+            <div class="cs-decision-what">Scroll hijacking</div>
+            <div class="cs-decision-why">
+              Taking direct control of scroll position creates a jarring
+              mismatch between user intent and page response, especially
+              on trackpads and mobile. The cinematic feeling had to be
+              achievable through overlay composition, not scroll ownership.
+            </div>
+          </div>
+          <div>
+            <div class="cs-decision-what">What was used instead</div>
+            <div class="cs-decision-why">
+              Lenis for inertial smoothing only. Scroll position remains
+              native. All visual effects are driven by reading normalised
+              scroll progress — never writing it.
+            </div>
+          </div>
+        </div>
+
+        <div class="cs-decision">
+          <span class="cs-decision-status rejected">Rejected</span>
+          <div>
+            <div class="cs-decision-what">Per-frame React state updates</div>
+            <div class="cs-decision-why">
+              The naive implementation of scroll-driven effects reads
+              scroll position in a React hook and calls setState on every
+              frame. This schedules a React reconciliation at 60fps —
+              the most expensive way to move a div 1 pixel.
+            </div>
+          </div>
+          <div>
+            <div class="cs-decision-what">What was used instead</div>
+            <div class="cs-decision-why">
+              Direct DOM style mutation via refs for pointer effects.
+              SceneController notifies subscribers only on state changes
+              (inactive → secondary → primary), not on every scroll frame.
+              React re-renders happen at scene boundaries, not per pixel.
+            </div>
+          </div>
+        </div>
+
+        <div class="cs-decision">
+          <span class="cs-decision-status rejected">Rejected</span>
+          <div>
+            <div class="cs-decision-what">Particle systems / generative art</div>
+            <div class="cs-decision-why">
+              Floating particles are the most common visual choice for
+              "premium dark" portfolios. They are also the fastest way to
+              signal that the designer's reference point is other portfolios
+              rather than the brands they serve.
+            </div>
+          </div>
+          <div>
+            <div class="cs-decision-what">What was used instead</div>
+            <div class="cs-decision-why">
+              A static dot grid with imperceptible CSS-translate drift.
+              The movement is below conscious perception threshold — it
+              creates spatial depth without demanding the eye.
+            </div>
+          </div>
+        </div>
+
+        <div class="cs-decision">
+          <span class="cs-decision-status rejected">Rejected</span>
+          <div>
+            <div class="cs-decision-what">Animated text reveals (letter stagger)</div>
+            <div class="cs-decision-why">
+              Letter-by-letter reveals delay the moment a user can actually
+              read the content. They are legible only to the designer who
+              spent time tweaking the stagger — to a first-time visitor
+              they are friction.
+            </div>
+          </div>
+          <div>
+            <div class="cs-decision-what">What was used instead</div>
+            <div class="cs-decision-why">
+              Opacity + blur dissolve on the full typography block.
+              The text is readable immediately as it fades in — it does
+              not make the user wait for a letter that hasn't arrived yet.
+            </div>
+          </div>
+        </div>
+
+        <div class="cs-decision">
+          <span class="cs-decision-status rejected">Rejected</span>
+          <div>
+            <div class="cs-decision-what">Custom cursor replacement</div>
+            <div class="cs-decision-why">
+              Custom cursors are disorienting. They replace a familiar
+              operating system control with a site-specific one, breaking
+              the user's spatial model of their own pointing device.
+              The effect is rarely worth the disorientation cost.
+            </div>
+          </div>
+          <div>
+            <div class="cs-decision-what">What was used instead</div>
+            <div class="cs-decision-why">
+              CursorField — a radial light bloom that follows the cursor
+              at CSS-level opacity 2–5%. It is spatially connected to
+              the cursor without replacing it. The user's system cursor
+              is never touched.
+            </div>
+          </div>
+        </div>
+
+        <div class="cs-decision">
+          <span class="cs-decision-status chosen">Chosen</span>
+          <div>
+            <div class="cs-decision-what">philo-em glow removed in Phase 12</div>
+            <div class="cs-decision-why">
+              The word "decoration" in "Design is not decoration." had a
+              breathing cyan glow animation. It was making the negated
+              word the most visually prominent element on the philosophy
+              screen — semantically backwards.
+            </div>
+          </div>
+          <div>
+            <div class="cs-decision-what">The fix</div>
+            <div class="cs-decision-why">
+              Animation removed. The glow is retained only on
+              "to be seen." in the CTA — the positive climax of the
+              narrative. The same visual device now carries meaning
+              because it is used once, not twice.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── 06 · Accessibility ─────────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">06</span>
+        <span class="cs-section-label">Accessibility Considerations</span>
+      </div>
+
+      <h2 class="cs-h2">Motion safety by default</h2>
+
+      <p class="cs-p">
+        The cinematic experience is designed to degrade gracefully across
+        three accessibility vectors: reduced motion preference, coarse
+        pointer devices, and no-JavaScript environments.
+      </p>
+
+      <div class="cs-cols">
+        <div>
+          <h3 class="cs-h3">prefers-reduced-motion</h3>
+          <p class="cs-p">
+            Checked at two levels. The CSS layer kills all breathing
+            animations and disables JS-driven transform transitions
+            (<code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">transition: none !important</code>).
+            The JS layer — PointerEngine — also reads the media query
+            dynamically: if reduced motion is activated mid-session,
+            pointer effects stop on the next RAF tick without a page reload.
+          </p>
+          <p class="cs-p">
+            ThreeCanvas goes further: on reduced motion it skips WebGL
+            initialisation entirely. The RAF loop, renderer, and scene
+            are never created.
+          </p>
+        </div>
+        <div>
+          <h3 class="cs-h3">Coarse pointer (touch)</h3>
+          <p class="cs-p">
+            PointerEngine checks
+            <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">(pointer: coarse)</code>
+            on mount. If true, it returns before registering any event
+            listeners or starting the RAF loop. CursorField applies the
+            same check independently. The entire pointer system is absent
+            on touchscreen devices — not degraded, absent.
+          </p>
+          <h3 class="cs-h3" style="margin-top: 32px;">Semantic markup</h3>
+          <p class="cs-p">
+            Decorative layers carry
+            <code style="font-family:var(--f-mono);font-size:0.85em;color:var(--c-cyan)">aria-hidden="true"</code>.
+            Scene sections use landmark elements (h1, h2, h3) in
+            correct heading hierarchy. The CTA buttons are anchor
+            elements with functional href values, not divs with click
+            handlers.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 07 · Production Phases ────────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">07</span>
+        <span class="cs-section-label">Production Timeline</span>
+      </div>
+
+      <h2 class="cs-h2">Thirteen phases</h2>
+
+      <p class="cs-p">
+        Each phase had a single, stated objective. No phase was allowed to
+        expand its scope without becoming a new phase. This constraint
+        prevented the accumulation of diffuse, untraceable changes.
+      </p>
+
+      <div class="cs-timeline">
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">Phase 1–3</span>
+          <div>
+            <div class="cs-timeline-title">Foundation</div>
+            <p class="cs-timeline-desc">
+              Astro project setup, React integration, global design tokens,
+              scene layer architecture, SceneWrapper component, SceneController
+              first implementation with scroll-driven state machine.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">Phase 4–5</span>
+          <div>
+            <div class="cs-timeline-title">Scene content + atmospheric layering</div>
+            <p class="cs-timeline-desc">
+              All six scene components written. DotGrid, DepthLayer, CursorField,
+              ThreeCanvas atmospheric system. Pointer depth illusion on Hero.
+              HeroSignature scanline and corner bracket system.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">Phase 6</span>
+          <div>
+            <div class="cs-timeline-title">Signature visual identity</div>
+            <p class="cs-timeline-desc">
+              Bento grid Services layout. Institutional trust layer (Logos).
+              Typography refinement pass. Breathing animations for availability
+              badge and CTA emphasis. Visual DNA consistency audit.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">Phase 7</span>
+          <div>
+            <div class="cs-timeline-title">Cinematic easing normalisation</div>
+            <p class="cs-timeline-desc">
+              Audit of all CSS transitions for bare <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">ease</code>
+              keywords. Replaced with the project easing token
+              <code style="font-family:var(--f-mono);font-size:0.8em;color:var(--c-cyan)">cubic-bezier(0.16, 1, 0.3, 1)</code>
+              throughout. Two lines changed.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">Phase 8</span>
+          <div>
+            <div class="cs-timeline-title">System hardening</div>
+            <p class="cs-timeline-desc">
+              CinematicOrchestrator wrapped initialisation in try/catch boundaries.
+              BootSystem dead code removed. ScrollEngine visibilitychange handler.
+              ThreeCanvas passive resize listener. SceneRegistry dead export removed.
+              ServicesScene continuous translateY fix.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">Phase 9</span>
+          <div>
+            <div class="cs-timeline-title">PointerEngine stabilisation</div>
+            <p class="cs-timeline-desc">
+              Stored listener references for exact removeEventListener cleanup.
+              Delta-time normalisation for frame-rate independence. _lastTime
+              field to prevent timing jitter on tab resume.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item">
+          <span class="cs-timeline-phase">Phase 10</span>
+          <div>
+            <div class="cs-timeline-title">Observability layer</div>
+            <p class="cs-timeline-desc">
+              CinematicMonitor: FPS tracking (1s/5s rolling), spike detection,
+              scene transition ring buffer (50 entries), engine health flags.
+              DebugOverlay: Ctrl+Shift+D HUD with 1Hz polling. Both
+              tree-shaken entirely from production builds.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item active">
+          <span class="cs-timeline-phase">Phase 11</span>
+          <div>
+            <div class="cs-timeline-title">Production performance</div>
+            <p class="cs-timeline-desc">
+              React.lazy() code-split for all 9 non-critical components.
+              Three.js moved from CDN to npm bundle. atmosphereReady gate.
+              PointerEngine + CursorField coarse-pointer guard. Non-blocking
+              font loading. Entry bundle: 58 kB → 10.7 kB gzip (−82%).
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item active">
+          <span class="cs-timeline-phase">Phase 12</span>
+          <div>
+            <div class="cs-timeline-title">Experience audit</div>
+            <p class="cs-timeline-desc">
+              Loader shortened 3.38s → 2.38s. Hero reveal delay 480ms → 200ms.
+              Broken Services stat removed. Stale CTA date corrected.
+              philo-em glow removed (semantic inversion). Mobile landscape
+              hero-descriptor restored. Work section dead link fixed.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-timeline-item active">
+          <span class="cs-timeline-phase">Phase 13</span>
+          <div>
+            <div class="cs-timeline-title">Portfolio productisation</div>
+            <p class="cs-timeline-desc">
+              This case study. Architecture documentation. Premium
+              presentation layer. ARCHITECTURE.md engineering reference.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── 08 · Interaction Pipeline ─────────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">08</span>
+        <span class="cs-section-label">Interaction Pipeline</span>
+      </div>
+
+      <h2 class="cs-h2">From input to pixel</h2>
+
+      <div class="cs-diagram">
+        <div class="cs-diagram-label">Pointer interaction data flow</div>
+        <pre>
+mousemove event (window, passive)
+    │
+    ↓
+<span class="hl">PointerEngine._raw</span> ← raw clientX/Y stored (no processing)
+    │
+    ↓ RAF tick (~60fps)
+<span class="hl">PointerEngine._current</span> ← LERP(current, raw, 0.055 × dt/16.667)
+    │
+    ↓ subscribers notified if !reducedMotion && !coarsePointer
+    │
+    ├──→ <span class="hl-v">HeroScene</span>  usePointer()
+    │        │ sceneIntensity('hero') → 1.0 if primary, 0.3 if secondary, 0.0 if inactive
+    │        └→ firstRef.style.transform = translate(cx*8*i, cy*5*i)   ← 8px max
+    │           lastRef.style.transform  = translate(cx*-5*i, cy*-3*i) ← depth illusion
+    │           metaRef.style.transform  = translate(cx*2*i, cy*1.5*i) ← sub-identity
+    │
+    ├──→ <span class="hl-v">CTAScene</span>  usePointer()
+    │        └→ primaryBtn.style.transform = translateY(cy*-3*i)       ← 3px max lift
+    │
+    └──→ <span class="hl-v">CursorField</span>  PointerEngine.subscribe()
+             └→ innerDiv.style.transform = translate(x - vw/2, y - vh/2)
+                                                                        ← gradient follows cursor
+        </pre>
+      </div>
+
+      <div class="cs-diagram" style="margin-top: 24px;">
+        <div class="cs-diagram-label">Scroll to scene-state data flow</div>
+        <pre>
+Lenis RAF tick
+    │
+    └→ ScrollEngine callback ← lenis.on('scroll', ...)
+           │
+           ↓
+    <span class="hl">SceneController.update(progress)</span>  ← normalised 0–1
+           │
+           ↓ for each of 6 registered scenes:
+    calculateSceneState(scene, progress)
+           │
+           ├── progress &lt; start - 0.05 OR &gt; end + 0.05  → <span class="dim">inactive</span>
+           ├── progress within [start, end]               → <span class="hl">primary</span>
+           └── otherwise                                  → <span class="hl-v">secondary</span>
+           │
+           ↓ on state change only:
+    scene.onStateChange(newState)  ← triggers SceneWrapper re-render
+    SceneController.listeners      ← notified every frame (DepthLayer, HeroSignature)
+        </pre>
+      </div>
+    </section>
+
+    <!-- ── 09 · What This Demonstrates ───────────────────────────────────────── -->
+    <section class="cs-section">
+      <div class="cs-section-eyeline">
+        <span class="cs-section-num">09</span>
+        <span class="cs-section-label">What this demonstrates</span>
+      </div>
+
+      <h2 class="cs-h2">The real portfolio</h2>
+
+      <p class="cs-p">
+        The cinematic experience is not a showcase of what I can build.
+        Client projects demand entirely different skills: user research,
+        information architecture, stakeholder communication, iteration
+        under constraint. None of that shows up in a personal portfolio.
+      </p>
+
+      <p class="cs-p">
+        What this project demonstrates is decision quality under
+        self-imposed constraint. Every choice made here — the easing tokens,
+        the RAF ownership model, the atmosphereReady gate, the semantic
+        inversion fix, the rejected scroll hijacker — reflects the same
+        thinking I bring to client work: <strong>trace the decision to a
+        reason, or remove it.</strong>
+      </p>
+
+      <div class="cs-callout violet">
+        <p>
+          The best design work leaves no fingerprints on the user experience.
+          The user does not think about the DotGrid, the visibilitychange
+          handler, or the delta-time LERP normalisation.
+          They just feel that the site works — that it has weight and
+          intention. That perception is the product.
+        </p>
+      </div>
+
+      <div class="cs-cols" style="margin-top: 48px;">
+        <div>
+          <h3 class="cs-h3">For potential clients</h3>
+          <p class="cs-p">
+            If your brand requires a digital presence that feels considered
+            rather than assembled — where the typography, the pacing, and the
+            interaction all serve the same identity — contact me directly.
+          </p>
+          <p class="cs-p">
+            I work with luxury brands, clinics, and specialist firms in the
+            UAE and internationally. I take a limited number of projects
+            at a time.
+          </p>
+          <a href="mailto:sajed@davincistudio.ae"
+             style="display:inline-block;margin-top:16px;font-family:var(--f-body);font-size:0.75rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--c-cyan);text-decoration:none;border-bottom:1px solid rgba(0,240,255,0.3);padding-bottom:4px;">
+            Start a conversation ↗
+          </a>
+        </div>
+        <div>
+          <h3 class="cs-h3">For studios and engineers</h3>
+          <p class="cs-p">
+            The architecture document linked below covers the full system
+            in engineering detail — engine contracts, ownership rules,
+            performance constraints, and the reasoning behind each.
+          </p>
+          <a href="/architecture"
+             style="display:inline-block;margin-top:16px;font-family:var(--f-body);font-size:0.75rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--c-text-muted);text-decoration:none;border-bottom:1px solid rgba(240,240,240,0.15);padding-bottom:4px;">
+            View architecture reference ↗
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="cs-page">
+    <div class="cs-footer">
+      <span class="cs-footer-brand">DA VINCI STUDIO</span>
+      <span class="cs-footer-meta">© 2026 · Sajed Hamouda · Abu Dhabi, UAE</span>
+      <a href="/" class="cs-footer-link">← Back to portfolio</a>
+    </div>
+  </footer>
+
+</CaseStudyLayout>

@@ -1,0 +1,163 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Da Vinci Studio — CI/CD Pipeline
+# Runs on: push to main (production) and pull_request (preview).
+#
+# Deployment target: Cloudflare Pages (primary)
+# Fallback configs for Vercel/Netlify are in vercel.json / netlify.toml.
+#
+# Required repository secrets (Settings → Secrets → Actions):
+#   CF_API_TOKEN            — Cloudflare API token (Edit Cloudflare Pages)
+#   CF_ACCOUNT_ID           — Cloudflare account ID
+#
+# Optional secrets for analytics (set in production only):
+#   PUBLIC_UMAMI_URL        — Umami instance URL
+#   PUBLIC_UMAMI_SITE_ID    — Umami website ID
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Deploy
+
+on:
+  push:
+    branches: [main, astro-dark]
+  pull_request:
+    branches: [main, astro-dark]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ──────────────────────────────────────────────────────────────────────────
+  # 1. BUILD & VALIDATE
+  # ──────────────────────────────────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npx astro check
+        continue-on-error: false
+
+      - name: Build
+        run: npm run build
+        env:
+          NODE_ENV: production
+          PUBLIC_UMAMI_URL:     ${{ secrets.PUBLIC_UMAMI_URL }}
+          PUBLIC_UMAMI_SITE_ID: ${{ secrets.PUBLIC_UMAMI_SITE_ID }}
+
+      - name: Audit build output
+        run: |
+          echo "=== Build artifacts ==="
+          ls -lh dist/_astro/*.js | sort -k5 -rh
+          echo ""
+          echo "=== Total JS payload ==="
+          du -sh dist/_astro/*.js | awk '{sum += $1} END {print sum " KB total JS"}'
+          echo ""
+          echo "=== Pages generated ==="
+          find dist -name "index.html" | sort
+          echo ""
+          echo "=== Sitemap check ==="
+          test -f dist/sitemap-index.xml && echo "sitemap-index.xml: OK" || echo "sitemap-index.xml: MISSING"
+          echo ""
+          echo "=== 404 page ==="
+          test -f dist/404.html && echo "404.html: OK" || echo "404.html: MISSING"
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 7
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # 2. DEPLOY PREVIEW (pull requests)
+  # ──────────────────────────────────────────────────────────────────────────
+  deploy-preview:
+    name: Deploy Preview
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+
+      - name: Deploy to Cloudflare Pages (preview)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=davincistudio --branch=${{ github.head_ref }}
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # 3. DEPLOY PRODUCTION (push to main / astro-dark)
+  # ──────────────────────────────────────────────────────────────────────────
+  deploy-production:
+    name: Deploy Production
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/astro-dark')
+    environment:
+      name: production
+      url: https://davincistudio.ae
+
+    steps:
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+
+      - name: Deploy to Cloudflare Pages (production)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=davincistudio --branch=main
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # 4. POST-DEPLOY VALIDATION (production only)
+  # Runs the automated validation script against the live URL.
+  # Waits 30s for CF cache to warm before probing.
+  # ──────────────────────────────────────────────────────────────────────────
+  validate-production:
+    name: Validate Production
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/astro-dark')
+
+    steps:
+      - name: Checkout (for validation script)
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Wait for deployment to propagate
+        run: sleep 30
+
+      - name: Run production validation
+        run: node scripts/validate-production.mjs https://davincistudio.ae
+        continue-on-error: true

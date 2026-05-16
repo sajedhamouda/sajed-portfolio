@@ -1,0 +1,73 @@
+<canvas id="flower-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;"></canvas>
+
+<script>
+  // Load Three.js from CDN
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+  script.onload = () => {
+    // Three.js is now globally available as THREE
+    window.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('flower-canvas');
+      if (!canvas) return;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+      renderer.setClearColor(0x000000, 0);
+
+      const geometry = new THREE.SphereGeometry(2.5, 64, 64);
+      // Create a simple texture (you can replace with a real Flower of Life image later)
+      const canvasTexture = document.createElement('canvas');
+      canvasTexture.width = 1024;
+      canvasTexture.height = 1024;
+      const ctx = canvasTexture.getContext('2d');
+      ctx.fillStyle = '#f0ede6';
+      ctx.fillRect(0, 0, canvasTexture.width, canvasTexture.height);
+      ctx.strokeStyle = '#e63030';
+      ctx.lineWidth = 8;
+      const center = canvasTexture.width/2;
+      const radius = 400;
+      for (let i = 0; i < 6; i++) {
+        const angle = (i * Math.PI * 2) / 6;
+        const x = center + Math.cos(angle) * radius;
+        const y = center + Math.sin(angle) * radius;
+        ctx.beginPath();
+        ctx.arc(x, y, radius/2, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.arc(center, center, radius, 0, Math.PI * 2);
+      ctx.stroke();
+      const texture = new THREE.CanvasTexture(canvasTexture);
+      const material = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.3, metalness: 0.1 });
+      const sphere = new THREE.Mesh(geometry, material);
+      scene.add(sphere);
+
+      const ambient = new THREE.AmbientLight(0x404040);
+      scene.add(ambient);
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(1, 2, 1);
+      scene.add(light);
+
+      camera.position.z = 6;
+
+      function animate() {
+        requestAnimationFrame(animate);
+        sphere.rotation.y += 0.003;
+        sphere.rotation.x += 0.001;
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener('resize', () => {
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+      });
+    });
+  };
+  document.head.appendChild(script);
+</script>

@@ -1,0 +1,28 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Cloudflare Pages — redirects & routing rules
+# https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# Astro static output generates real index.html files for every route, so
+# SPA-style catch-all is NOT needed. Direct navigation works out of the box.
+#
+# This file handles:
+#   1. Trailing-slash normalisation (canonical URLs)
+#   2. Legacy / renamed route redirects
+#   3. 404 fallback (CF Pages picks up /404.html automatically)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Trailing slash normalisation ─────────────────────────────────────────────
+# Cloudflare Pages serves index.html for both /case-study and /case-study/
+# by default, so explicit redirects here are only needed if you want to
+# enforce one canonical form. Astro already outputs /case-study/index.html
+# so both forms resolve; the canonical <link> in each page handles SEO.
+
+# ── Legacy / renamed routes ───────────────────────────────────────────────────
+# If any old URL was ever shared publicly, redirect it permanently.
+/index-new  /  301
+/hero-demo  /  302
+
+# ── www → apex ────────────────────────────────────────────────────────────────
+# Cloudflare DNS handles this via a CNAME record; no redirect rule needed here.
+# But if you ever point www CNAME here directly, uncomment:
+# https://www.davincistudio.ae/*  https://davincistudio.ae/:splat  301

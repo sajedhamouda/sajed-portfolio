@@ -1,0 +1,395 @@
+================================================================================
+  SAJED PORTFOLIO — PROJECT WORK REPORT
+  Branch: astro-dark
+  Generated: 2026-05-16
+================================================================================
+
+PROJECT OVERVIEW
+----------------
+This is Sajed's personal portfolio website built with Astro + React. The project
+started as a basic Astro site and evolved into a cinematic, scroll-driven
+single-page experience with a custom animation engine, 3D WebGL background,
+and a full observability layer.
+
+================================================================================
+  TIMELINE OF WORK
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+2026-03-27  INITIAL SETUP
+────────────────────────────────────────────────────────────────────────────────
+
+Commits:
+  - "Initial commit from Astro"
+  - Initial Astro portfolio (first version)
+  - Add dark version with 3D, counters, etc.
+
+Summary:
+  The project was bootstrapped using the Astro framework. A dark-themed version
+  was created with a Three.js 3D background, animated counters, and basic
+  portfolio sections.
+
+────────────────────────────────────────────────────────────────────────────────
+2026-03-28  THREEJS & DEPLOYMENT FIXES
+────────────────────────────────────────────────────────────────────────────────
+
+Commits:
+  - Remove client:load from ThreeBackground
+  - Add three.js dependency
+  - Trigger new deployment
+  - Use CDN for Three.js to fix module loading
+  - Convert all scripts to plain JavaScript
+  - Convert all scripts to plain JavaScript (non-module) for reliability
+
+Summary:
+  Several iterations were needed to get Three.js loading correctly. The approach
+  shifted from a CDN-based script injection to a proper npm dependency, and all
+  module scripts were converted to plain JavaScript for maximum compatibility.
+  The final result was a stable Three.js 3D background with no module loading
+  errors.
+
+────────────────────────────────────────────────────────────────────────────────
+2026-03-31  DESIGN SPECIFICATION: BALANCED HYBRID PORTFOLIO
+────────────────────────────────────────────────────────────────────────────────
+
+Commit:
+  - Add design specification for balanced hybrid portfolio improvements
+
+Summary:
+  A detailed design spec was written to guide the next major refactor — a
+  "balanced hybrid" approach that would keep the cinematic dark aesthetic while
+  improving readability, content clarity, and professional trust signals.
+
+────────────────────────────────────────────────────────────────────────────────
+2026-04-03  PERFORMANCE BASELINE
+────────────────────────────────────────────────────────────────────────────────
+
+Commit:
+  - chore: record performance baseline before optimizations
+
+Summary:
+  Before starting the cinematic system rewrite, a performance baseline was
+  recorded so optimizations could be measured against a known starting point.
+
+────────────────────────────────────────────────────────────────────────────────
+2026-04-12  PORTFOLIO DATA REFACTOR DESIGN SPEC
+────────────────────────────────────────────────────────────────────────────────
+
+Commit:
+  - Add portfolio data refactor design spec
+
+Summary:
+  A 156-line architectural spec was written for refactoring the portfolio data
+  layer — separating content data from presentation components for better
+  maintainability.
+
+────────────────────────────────────────────────────────────────────────────────
+2026-04-14  PORTFOLIO GRID DESIGN SPEC
+────────────────────────────────────────────────────────────────────────────────
+
+Commits:
+  - Add portfolio grid design spec (2026-04-14)
+  - chore: ignore .worktrees directory
+
+Summary:
+  A design spec was written for the portfolio grid layout. The .worktrees
+  directory was added to .gitignore for cleaner version control.
+
+────────────────────────────────────────────────────────────────────────────────
+2026-05-13  MAJOR CINEMATIC SYSTEM — 8 PHASES IN ONE DAY
+────────────────────────────────────────────────────────────────────────────────
+
+This was the largest single day of work. Eight distinct phases were completed,
+each as an atomic commit, rebuilding the portfolio from the ground up with a
+professional cinematic animation system.
+
+  ─── Phase "10 complete" (base build) ──────────────────────────────────────
+
+  Commits: a12ebc0
+  Time: 15:17
+
+  The entire cinematic system was created from scratch:
+
+  New architecture:
+    - src/App.tsx                      — root React app with cinematic orchestration
+    - src/boot/BootSystem.ts           — animated loader/status sequence (3.38s boot)
+    - src/boot/CinematicApp.tsx        — top-level scene coordinator
+    - src/core/scroll/ScrollEngine.ts  — Lenis smooth-scroll wrapper
+    - src/core/interaction/PointerEngine.ts — global pointer tracking with RAF
+    - src/core/interaction/usePointer.ts    — React hook for pointer state
+    - src/core/scene-engine/SceneController.ts  — scroll-driven scene state machine
+    - src/core/scene-engine/SceneRegistry.ts    — central scene registration
+    - src/core/scene-engine/SceneWrapper.tsx    — HOC for scroll-activated scenes
+    - src/core/scene-engine/useScene.ts         — React hook for scene state
+    - src/core/scene-engine/useSceneProgress.ts — hook for scene scroll progress
+    - src/visual/atmosphere/CursorField.tsx     — pointer-reactive cursor glow
+    - src/visual/atmosphere/DepthLayer.tsx      — parallax depth layer
+    - src/visual/atmosphere/DotGrid.tsx         — animated dot grid background
+    - src/visual/three/ThreeCanvas.tsx          — WebGL 3D scene (Three.js)
+    - src/scenes/Hero/HeroScene.tsx             — hero section with pointer depth
+    - src/scenes/Logos/LogosScene.tsx           — trust logos / tools section
+    - src/scenes/Philosophy/PhilosophyScene.tsx — design philosophy section
+    - src/scenes/Services/ServicesScene.tsx     — services bento grid
+    - src/scenes/Work/WorkScene.tsx             — selected work section
+    - src/scenes/CTA/CTAScene.tsx               — call-to-action section
+    - src/styles/scenes.css                     — 1,948 lines of cinematic CSS
+    - src/styles/global.css                     — global resets and variables
+    - src/layouts/Layout.astro                  — Astro root layout
+
+  Verified: 0 TypeScript errors, build clean in 2.80s.
+
+  ─── Phase 7: Easing Normalization ─────────────────────────────────────────
+
+  Commit: fb15388
+  Time: 15:37
+
+  Two micro-interactions were using the generic CSS `ease` keyword instead of
+  the project's cinematic cubic-bezier(0.16, 1, 0.3, 1) token:
+    - .work-cta-link hover opacity transition
+    - .cta-footer link color hover transition
+
+  Both were corrected to use the cinematic easing token for full visual
+  consistency. Reduced-motion override blocks intentionally retained `ease`.
+
+  ─── Phase 8: Cinematic System Hardening ────────────────────────────────────
+
+  Commit: 5e46ccc
+  Time: 15:46
+
+  Eight production hardening steps:
+    1. Full ownership audit — all engine boundaries confirmed clean.
+    2. ServicesScene translateY snap fix — replaced ternary snap (local<0.5 ?
+       25 : -15) with continuous linear formula (30 - local*50).
+    3. Removed 4 dev console.log() calls from CinematicOrchestrator. The 9s
+       fallback console.warn was retained (signals real timing anomaly).
+    4. Removed dead 'cinematic-boot-complete' CustomEvent from BootSystem —
+       dispatched but never consumed.
+    5. ScrollEngine and PointerEngine init wrapped in try/catch — either engine
+       failure is non-fatal; the 9s fallback ensures the app always appears.
+    6. ThreeCanvas resize listener made passive: { passive: true }.
+    7. prefers-reduced-motion JS gate added to PointerEngine — reads
+       matchMedia, tracks live changes, skips RAF subscriber notifications
+       when active (CursorField, hero depth, CTA lift fully suppressed).
+    8. Dead getAllScenes() export removed from SceneRegistry.
+
+  ─── CinematicOrchestrator Introduced ───────────────────────────────────────
+
+  Commit: 6ca83a3
+  Time: 15:27
+
+  Architecture refactor — replaced parallel implicit initialization with a
+  single authority class enforcing strict startup ordering:
+
+    1. SceneController registration
+    2. ScrollEngine.initialize()  (Lenis created, stopped)
+    3. PointerEngine.mount()      (passive mousemove + RAF)
+    4. onDomReady()               (app DOM mounts behind loader)
+    5. BootSystem.boot()          (cinematic status sequence)
+    6. _triggerEntry()            (scroll unlocked, loader out, app in,
+                                   cinematic-entry dispatched)
+
+  App.tsx reduced to a single CinematicOrchestrator.run(callbacks) call.
+  CinematicApp.tsx retired. No visual changes — architecture only.
+
+  ─── Phase 9: Production Validation ─────────────────────────────────────────
+
+  Commit: da822a1
+  Time: 15:52
+
+  Lifecycle hardening across all three engines:
+
+  PointerEngine:
+    - Fixed event listener leak: mousemove/mouseleave closures now stored as
+      instance fields so removeEventListener actually works on unmount.
+    - Delta-time normalized LERP: 1-(1-LERP_60)^(dt/16.667). At 30fps the
+      pointer now converges at the same wall-clock rate as 60fps. dt clamped
+      to 100ms (prevents tab-resume position jump).
+    - _lastTime reset in unmount() for clean re-mount.
+
+  ScrollEngine:
+    - visibilitychange handler: calls lenis.stop() when tab hides, lenis.start()
+      on return — prevents the large time-gap scroll jump on tab resume.
+    - Listener reference stored for clean removeEventListener in destroy().
+    - start() guards document.hidden — Lenis not started if tab is hidden at boot.
+    - destroy() removes visibilitychange listener and resets _running.
+
+  CinematicOrchestrator.cancel():
+    - Now calls ScrollEngine.destroy() + PointerEngine.unmount() for full cleanup.
+    - Resets _started = false — enables clean SPA back-navigation and React
+      StrictMode second-mount cycle (previously caused blank screen on re-mount).
+
+  ─── Phase 10: Dev-Only Observability Layer ──────────────────────────────────
+
+  Commit: 53552eb
+  Time: 16:01
+
+  Two new files with zero production cost:
+
+  src/core/observability/CinematicMonitor.ts
+    Singleton collecting:
+      - FPS (1s rolling + 5s rolling averages)
+      - Frame spike detection (>20ms frames)
+      - Scene transition log (last 50 transitions)
+      - Engine health flags (scroll/pointer/boot complete)
+      - Subscriber counts (memory growth indicators)
+    All guarded by import.meta.env.DEV. Exposed as window.__cinematic in dev:
+      .snapshot()  → full structured health object
+      .history()   → last 50 scene transitions
+      .fps()       → { avg1s, avg5s }
+      .reset()     → clear accumulators
+      .health()    → engine health flags
+
+  src/core/observability/DebugOverlay.tsx
+    Fixed React HUD (toggle: Ctrl+Shift+D) displaying:
+      FPS (color-coded), frame spikes/worst frame, active scene, scroll %,
+      pointer nx/ny, pointer active state, engine health flags, subscriber counts.
+    Polls at 1Hz via setInterval (not RAF — zero cost when hidden).
+    Fully absent from production bundle (tree-shaken at JSX render site).
+
+  Engine instrumentation added (all DEV-only):
+    - ScrollEngine: recordFrame() in RAF tick, health flags on lifecycle events
+    - SceneController: recordSceneTransition() on state change, subscriber count
+    - PointerEngine: mount/unmount flags, subscriber count, active state relay
+    - BootSystem: setBootComplete(true) on successful boot
+
+  ─── Phase 11: Production Performance ───────────────────────────────────────
+
+  Commit: b9d7a0d
+  Time: 16:31
+
+  Entry bundle reduced from 58 kB gzip to 10.7 kB gzip  (-82%).
+
+  Changes:
+    App.tsx:
+      - All 5 scenes, 4 atmosphere layers, and ThreeCanvas converted to
+        React.lazy() + Suspense — each lands in its own chunk, deferred
+        past first paint.
+      - atmosphereReady gate: DotGrid/ThreeCanvas/DepthLayer/CursorField
+        only mount after cinematic-entry fires. Eliminates hidden WebGL +
+        RAF work during the boot loader sequence.
+
+    ThreeCanvas.tsx:
+      - Three.js imported from npm package (removes runtime CDN script injection).
+      - powerPreference: 'low-power' added to WebGL context.
+      - pixelRatio capped at 1.5.
+      - Sphere segments reduced 64 → 32.
+      - Texture resolution halved 1024 → 512.
+      - Proper resource disposal (geometry / material / texture).
+      - prefers-reduced-motion guard skips WebGL entirely.
+
+    PointerEngine.ts:
+      - pointer:coarse guard — skips mousemove listener + RAF loop entirely
+        on touchscreen devices.
+
+    CursorField.tsx:
+      - Matching pointer:coarse guard — no-op on touch devices.
+
+    Layout.astro:
+      - Google Fonts loaded non-blocking via media=print swap trick.
+      - noscript fallback for no-JS environments.
+
+  ─── Phase 12: Experience Audit ─────────────────────────────────────────────
+
+  Commit: 9f9d9dc
+  Time: 16:45
+
+  Final polish pass across pacing, content, and visual semantics.
+
+  Pacing:
+    - Boot loader shortened from 3.38s to 2.38s (-1s total).
+      Middle status messages compressed (800ms→480ms, 860ms→480ms).
+      ENTERING tightened (620ms→320ms).
+      'DA VINCI STUDIO' brand statement at 1.1s unchanged — earns its pause.
+    - HeroScene: post-entry reveal delay reduced 480ms → 200ms.
+      Hero text now fades in almost immediately as loader clears.
+
+  Content integrity:
+    - ServicesScene: removed broken stat ('8s' / 'Avg. page load < 1s') from
+      Motion card — self-contradicting copy that destroys user trust.
+    - WorkScene: '3 of 12 projects' → 'Selected projects'.
+      Dead href='#' → mailto link. A dead link is a trust signal in the
+      wrong direction.
+    - CTAScene: 'Q3 2025' → 'Currently accepting new projects' — stale date
+      was visible proof the portfolio is unmaintained.
+      'each quarter' → 'at a time'.
+
+  Semantic animation fix:
+    - scenes.css: removed philo-em glow animation entirely.
+      The word "decoration" in "Design is not decoration." should be visually
+      dead, not pulsing cyan. The animation was making the negated word the
+      most prominent element on the page.
+      cta-em ("to be seen.") retains its glow — it is the positive climax.
+
+  Mobile experience:
+    - hero-descriptor on landscape phones was display:none — removing the only
+      prose sentence explaining what Sajed does.
+      Fixed to condensed font-size:0.75rem / line-height:1.5.
+
+================================================================================
+  SUMMARY BY DATE
+================================================================================
+
+  2026-03-27   Initial Astro portfolio + dark 3D version created
+  2026-03-28   Three.js loading fixed; scripts converted to plain JS
+  2026-03-31   Design spec: balanced hybrid portfolio improvements
+  2026-04-03   Performance baseline recorded
+  2026-04-12   Design spec: portfolio data refactor
+  2026-04-14   Design spec: portfolio grid layout; .gitignore update
+  2026-05-13   Full cinematic system built + 8 hardening phases shipped
+
+================================================================================
+  FILES CREATED / KEY COMPONENTS
+================================================================================
+
+  Boot system:
+    src/boot/BootSystem.ts              — animated 2.38s loader sequence
+    src/boot/CinematicOrchestrator.ts   — deterministic startup pipeline
+    src/boot/CinematicApp.tsx           — (retired after orchestrator introduction)
+
+  Scroll & interaction engines:
+    src/core/scroll/ScrollEngine.ts          — Lenis smooth scroll wrapper
+    src/core/interaction/PointerEngine.ts    — global pointer tracker + RAF
+    src/core/interaction/usePointer.ts       — React hook
+
+  Scene engine:
+    src/core/scene-engine/SceneController.ts   — scroll-driven state machine
+    src/core/scene-engine/SceneRegistry.ts     — central scene registry
+    src/core/scene-engine/SceneWrapper.tsx     — scroll-activation HOC
+    src/core/scene-engine/useScene.ts          — React hook
+    src/core/scene-engine/useSceneProgress.ts  — progress hook
+
+  Observability (dev-only, zero production cost):
+    src/core/observability/CinematicMonitor.ts  — FPS, health, transition log
+    src/core/observability/DebugOverlay.tsx     — in-browser HUD (Ctrl+Shift+D)
+
+  Visual / atmosphere:
+    src/visual/three/ThreeCanvas.tsx          — Three.js WebGL sphere background
+    src/visual/atmosphere/DotGrid.tsx         — animated dot grid
+    src/visual/atmosphere/DepthLayer.tsx      — parallax depth effect
+    src/visual/atmosphere/CursorField.tsx     — pointer-reactive glow cursor
+
+  Scenes (6 scroll-driven sections):
+    src/scenes/Hero/HeroScene.tsx           — hero + pointer depth effect
+    src/scenes/Logos/LogosScene.tsx         — trust logos / tech stack
+    src/scenes/Philosophy/PhilosophyScene.tsx — design philosophy
+    src/scenes/Services/ServicesScene.tsx   — services bento grid
+    src/scenes/Work/WorkScene.tsx           — selected work showcase
+    src/scenes/CTA/CTAScene.tsx             — call to action
+
+  Styles:
+    src/styles/scenes.css    — 1,948 lines of cinematic CSS
+    src/styles/global.css    — global resets and CSS custom properties
+
+================================================================================
+  PERFORMANCE RESULTS (after Phase 11)
+================================================================================
+
+  Entry bundle:         58 kB gzip  →  10.7 kB gzip  (-82%)
+  Boot loader duration: 3.38s       →  2.38s          (-1s)
+  Hero reveal delay:    480ms        →  200ms          (-280ms)
+  Build time:           ~2.80s
+  TypeScript errors:    0
+
+================================================================================
+  END OF REPORT
+================================================================================

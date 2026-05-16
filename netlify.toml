@@ -1,0 +1,71 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Netlify — deployment configuration
+# https://docs.netlify.com/configure-builds/file-based-configuration/
+# ─────────────────────────────────────────────────────────────────────────────
+
+[build]
+  command       = "npm run build"
+  publish       = "dist"
+  ignore        = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':!*.md'"
+
+[build.environment]
+  NODE_VERSION  = "22"
+  NODE_ENV      = "production"
+
+# ── Branch / preview deploys ─────────────────────────────────────────────────
+[context.production]
+  command = "npm run build"
+
+[context.deploy-preview]
+  command = "npm run build"
+
+# ── Redirects ─────────────────────────────────────────────────────────────────
+[[redirects]]
+  from   = "/index-new"
+  to     = "/"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "/hero-demo"
+  to     = "/"
+  status = 302
+  force  = true
+
+# ── Headers ───────────────────────────────────────────────────────────────────
+
+# Hashed assets — immutable
+[[headers]]
+  for    = "/_astro/*"
+  [headers.values]
+    Cache-Control         = "public, max-age=31536000, immutable"
+    X-Content-Type-Options = "nosniff"
+
+# OG images
+[[headers]]
+  for    = "/og/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+    Content-Type  = "image/svg+xml"
+
+# Favicons
+[[headers]]
+  for    = "/favicon.*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=2592000"
+
+# HTML — always revalidate
+[[headers]]
+  for    = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Security headers — every response
+[[headers]]
+  for    = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options        = "DENY"
+    Referrer-Policy        = "strict-origin-when-cross-origin"
+    Permissions-Policy     = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    Content-Security-Policy = "default-src 'none'; script-src 'self' 'unsafe-inline' https://*.umami.is https://*.davincistudio.ae; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.umami.is https://*.davincistudio.ae; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
