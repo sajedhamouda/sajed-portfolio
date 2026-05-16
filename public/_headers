@@ -1,0 +1,69 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Cloudflare Pages — HTTP headers
+# Applies to all deployments (preview + production).
+#
+# Strategy:
+#   /_astro/*   — immutable (content-hash in filename, 1-year cache)
+#   /og/*       — long cache, public CDN-friendly
+#   /favicon*   — medium cache
+#   /*.html     — no-cache (always revalidate HTML)
+#   /*          — security headers on everything
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Hashed static assets (JS, CSS, wasm) — immutable ───────────────────────
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+# ── OG images ───────────────────────────────────────────────────────────────
+/og/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  Content-Type: image/svg+xml
+  X-Content-Type-Options: nosniff
+
+# ── Favicons ────────────────────────────────────────────────────────────────
+/favicon.ico
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+
+/favicon.svg
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+
+# ── Sitemaps & robots ────────────────────────────────────────────────────────
+/sitemap*.xml
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  Content-Type: application/xml
+
+/robots.txt
+  Cache-Control: public, max-age=86400
+
+# ── HTML pages — always revalidate ──────────────────────────────────────────
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# ── Security + privacy headers on every response ────────────────────────────
+/*
+  # Prevent MIME-type sniffing
+  X-Content-Type-Options: nosniff
+
+  # No framing (clickjacking protection)
+  X-Frame-Options: DENY
+
+  # Referrer policy — send origin only on same-origin, nothing cross-origin
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Disable browser feature APIs not needed by this site
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()
+
+  # Content Security Policy
+  # Allows:
+  #   - scripts: self + 'unsafe-inline' (Astro island bootstrap) +
+  #              umami analytics (defined via env, wildcard for self-hosted)
+  #   - styles: self + 'unsafe-inline' (Tailwind/Astro scoped styles) +
+  #             Google Fonts
+  #   - fonts: self + Google Fonts CDN
+  #   - connect: self + umami (analytics beacon)
+  #   - img: self + data: (inline SVG) + https: (OG crawlers)
+  #   - worker: self (potential future Houdini / Worklet use)
+  #   - frame: none
+  #   - object: none
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://*.umami.is https://*.davincistudio.ae; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.umami.is https://*.davincistudio.ae; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'

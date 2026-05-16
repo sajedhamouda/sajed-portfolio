@@ -8,7 +8,7 @@ import PortfolioGrid from '../components/PortfolioGrid.astro';
 import Timeline from '../components/Timeline.astro';
 ---
 
-<Layout>
+<Layout title="Index New — Dev Only" noindex={true}>
 
   <!-- CURSOR -->
   <div class="cursor-dot" id="dot"></div>
@@ -221,6 +221,7 @@ import Timeline from '../components/Timeline.astro';
         if (twEl) {
           let idx=0, ch=0, del=false;
           function type() {
+            if (!twEl) return;
             const cur = phrases[idx];
             if (!del) {
               twEl.textContent = cur.slice(0, ++ch);

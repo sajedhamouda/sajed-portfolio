@@ -1,0 +1,50 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="404 — Page Not Found · Da Vinci Studio"
+  description="The page you're looking for doesn't exist."
+  noindex={true}
+>
+  <main id="main-content" style="
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    padding: 2rem;
+    text-align: center;
+    font-family: 'Outfit', sans-serif;
+    background: #000;
+    color: #f0f0f0;
+  ">
+    <p style="font-size: clamp(5rem, 20vw, 12rem); font-weight: 700; line-height: 1; opacity: 0.12; letter-spacing: -0.05em; margin-bottom: -1rem;">
+      404
+    </p>
+    <h1 style="font-size: clamp(1.25rem, 4vw, 2rem); font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem;">
+      Page not found
+    </h1>
+    <p style="color: rgba(240,240,240,0.5); font-size: 1rem; max-width: 36ch; line-height: 1.6; margin-bottom: 2.5rem;">
+      The page you're looking for doesn't exist or has been moved.
+    </p>
+    <a
+      href="/"
+      style="
+        display: inline-block;
+        padding: 0.75rem 2rem;
+        border: 1px solid rgba(240,240,240,0.3);
+        color: #f0f0f0;
+        text-decoration: none;
+        font-size: 0.875rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        transition: border-color 0.2s, color 0.2s;
+      "
+      onmouseover="this.style.borderColor='rgba(240,240,240,0.8)'"
+      onmouseout="this.style.borderColor='rgba(240,240,240,0.3)'"
+    >
+      Return home
+    </a>
+  </main>
+</Layout>
