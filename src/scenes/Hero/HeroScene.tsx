@@ -125,8 +125,8 @@ function HeroContent({ state }: { state: SceneState }) {
         </div>
 
         <p className="hero-descriptor">
-          High-performance digital experiences for luxury brands,
-          kitchens &amp; healthcare — crafted in the UAE.
+          Precision digital experiences for brands that cannot afford
+          to look like everything else — crafted in the UAE.
         </p>
       </div>
 

@@ -54,7 +54,7 @@ const SERVICES: Service[] = [
   {
     code: 'SVC-04',
     title: 'Motion & Interaction',
-    subtitle: 'GSAP · Framer · CSS',
+    subtitle: 'CSS · RAF · First principles',
     body: 'Purposeful animation that guides attention. No decoration — only signal.',
     featured: true,
   },

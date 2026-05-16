@@ -36,10 +36,10 @@ const TOOLS: Tool[] = [
 ];
 
 const STATS = [
-  { value: '200+', label: 'Projects' },
-  { value: '8',    label: 'Countries' },
-  { value: '98%',  label: 'Satisfaction' },
-  { value: '6+',   label: 'Years' },
+  { value: '200+', label: 'Projects delivered' },
+  { value: '8',    label: 'Countries served' },
+  { value: '6+',   label: 'Years practice' },
+  { value: 'UAE',  label: 'Based in' },
 ];
 
 export function LogosScene() {

@@ -80,13 +80,13 @@ function CTAContent({ state }: { state: SceneState }) {
         className="cta-headline"
         style={{ willChange: 'transform' }}
       >
-        Your brand deserves<br />
-        <em className="cta-em">to be seen.</em>
+        The right work<br />
+        <em className="cta-em">takes intention.</em>
       </h2>
 
       <p className="cta-sub">
-        I take a limited number of new clients at a time.
-        If your project deserves attention, let's talk now.
+        I work with a small number of clients at a time — by design.
+        If your project demands precision, let's begin.
       </p>
 
       {/* Action row — buttons feel heavy and intentional */}

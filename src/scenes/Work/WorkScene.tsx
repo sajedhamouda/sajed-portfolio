@@ -25,7 +25,7 @@ const PROJECTS = [
     id: 'PRJ-03',
     category: 'SaaS Dashboard',
     title: 'Qafilah Logistics',
-    description: 'Real-time fleet management dashboard. Dark-mode-first, Arabic RTL, 8 custom chart types.',
+    description: 'Real-time fleet management dashboard for UAE operators. Dark-mode-first, Arabic RTL — designed to be read under pressure.',
     tags: ['React', 'Figma', 'RTL'],
     accent: '#00f0ff',
   },
@@ -73,7 +73,7 @@ function WorkContent({ state }: { state: SceneState }) {
         <span className="eyeline-text">SELECTED WORK</span>
       </div>
 
-      <h2 className="work-headline">Proof of concept</h2>
+      <h2 className="work-headline">Selected work</h2>
 
       <div className="work-list">
         {PROJECTS.map((proj, i) => {
